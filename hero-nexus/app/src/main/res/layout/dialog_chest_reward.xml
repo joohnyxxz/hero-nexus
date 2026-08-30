@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/card_dark"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_l">
+
+    <ImageView
+        android:id="@+id/imageReward"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textRewardTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_m"
+        android:textColor="@color/reward_gold"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="NOVO PERSONAGEM!" />
+
+    <TextView
+        android:id="@+id/textRewardSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/text_white"
+        android:textSize="16sp"
+        tools:text="Homem-Aranha" />
+
+</LinearLayout>

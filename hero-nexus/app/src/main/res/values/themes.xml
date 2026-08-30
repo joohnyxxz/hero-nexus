@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Hero Nexus é dark-mode-only por design (seção 30/36 do documento de projeto):
+         estética de HQ + cards + combate funciona melhor sobre fundo escuro fixo,
+         então usamos o parent ".Dark" (não DayNight) para ignorar o tema do sistema. -->
+    <style name="Base.Theme.Heronexus" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/combat_red</item>
+        <item name="colorPrimaryVariant">@color/combat_red_dark</item>
+        <item name="colorOnPrimary">@color/text_white</item>
+        <item name="colorSecondary">@color/reward_gold</item>
+        <item name="colorOnSecondary">@color/bg_deep_blue</item>
+        <item name="android:colorBackground">@color/bg_deep_blue</item>
+        <item name="colorSurface">@color/card_dark</item>
+        <item name="colorOnSurface">@color/text_white</item>
+        <item name="colorOnBackground">@color/text_white</item>
+        <item name="android:statusBarColor">@color/bg_deep_blue</item>
+        <item name="android:navigationBarColor">@color/bg_deep_blue</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Theme.Heronexus" parent="Base.Theme.Heronexus" />
+
+    <style name="Theme.Heronexus.Splash" parent="Base.Theme.Heronexus">
+        <item name="android:windowBackground">@color/bg_deep_blue</item>
+    </style>
+
+    <!-- Estilos reutilizáveis -->
+    <style name="TextAppearance.Heronexus.Title" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">@color/text_white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Heronexus.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_muted</item>
+    </style>
+
+    <style name="Widget.Heronexus.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/combat_red</item>
+        <item name="android:textColor">@color/text_white</item>
+        <item name="cornerRadius">10dp</item>
+    </style>
+
+    <style name="Widget.Heronexus.Button.Gold" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/reward_gold</item>
+        <item name="android:textColor">@color/bg_deep_blue</item>
+        <item name="cornerRadius">10dp</item>
+    </style>
+</resources>

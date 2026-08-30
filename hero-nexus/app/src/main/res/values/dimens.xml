@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_s">8dp</dimen>
+    <dimen name="spacing_m">16dp</dimen>
+    <dimen name="spacing_l">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_width">150dp</dimen>
+    <dimen name="card_image_height">130dp</dimen>
+
+    <dimen name="hud_bar_height">10dp</dimen>
+    <dimen name="joystick_size">120dp</dimen>
+    <dimen name="attack_button_size">84dp</dimen>
+</resources>

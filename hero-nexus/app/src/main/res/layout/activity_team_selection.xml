@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_deep_blue">
+
+    <include
+        android:id="@+id/topBar"
+        layout="@layout/include_top_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textSlotsFilled"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:paddingHorizontal="@dimen/spacing_m"
+        android:textAppearance="@style/TextAppearance.Heronexus.Body"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        tools:text="0/3 personagens selecionados" />
+
+    <LinearLayout
+        android:id="@+id/layoutSlots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/spacing_m"
+        app:layout_constraintTop_toBottomOf="@id/textSlotsFilled" />
+
+    <Button
+        android:id="@+id/buttonSaveTeam"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:layout_marginHorizontal="@dimen/spacing_m"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:text="@string/team_save"
+        android:textColor="@color/text_white"
+        app:layout_constraintEnd_toStartOf="@id/buttonStartBattle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutSlots"
+        app:strokeColor="@color/text_muted" />
+
+    <Button
+        android:id="@+id/buttonStartBattle"
+        style="@style/Widget.Heronexus.Button.Primary"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="@dimen/spacing_s"
+        android:layout_marginEnd="@dimen/spacing_m"
+        android:layout_marginTop="@dimen/spacing_s"
+        android:text="@string/team_start_battle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/buttonSaveTeam"
+        app:layout_constraintTop_toBottomOf="@id/layoutSlots"
+        app:layout_constraintWidth_percent="0.45" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerCharacters"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/spacing_m"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/spacing_m"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSaveTeam" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_deep_blue_light"
+        app:itemIconTint="@color/chip_text_selector"
+        app:itemTextColor="@color/chip_text_selector"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

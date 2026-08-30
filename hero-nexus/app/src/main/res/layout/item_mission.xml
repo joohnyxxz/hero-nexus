@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/spacing_m"
+    android:layout_marginVertical="@dimen/spacing_s"
+    app:cardBackgroundColor="@color/card_dark"
+    app:cardCornerRadius="10dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_m">
+
+        <TextView
+            android:id="@+id/textMissionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_white"
+            android:textStyle="bold"
+            tools:text="Derrote 20 inimigos" />
+
+        <TextView
+            android:id="@+id/textMissionReward"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/reward_gold"
+            android:textSize="12sp"
+            tools:text="Recompensa: +100 XP, +200 moedas" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_s"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/progressMission"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="10dp"
+                android:layout_weight="1"
+                android:progressDrawable="@drawable/progress_xp_bar"
+                tools:progress="60" />
+
+            <TextView
+                android:id="@+id/textMissionProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_s"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                tools:text="12/20" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonClaim"
+            style="@style/Widget.Heronexus.Button.Gold"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="@dimen/spacing_s"
+            android:text="@string/mission_claim"
+            android:textSize="13sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

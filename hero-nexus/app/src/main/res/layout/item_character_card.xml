@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/card_width"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/spacing_s"
+    app:cardBackgroundColor="@color/card_dark"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageCharacter"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/card_image_height"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_character_placeholder" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_gradient_scrim"
+            app:layout_constraintBottom_toBottomOf="@id/imageCharacter"
+            app:layout_constraintEnd_toEndOf="@id/imageCharacter"
+            app:layout_constraintStart_toStartOf="@id/imageCharacter" />
+
+        <LinearLayout
+            android:id="@+id/layoutRarity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="6dp"
+            android:background="@color/scrim"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="3dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="2dp"
+                android:src="@drawable/ic_star" />
+
+            <TextView
+                android:id="@+id/textRarity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:text="RARO" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="6dp"
+            android:background="@color/scrim"
+            android:padding="3dp"
+            android:textColor="@color/text_white"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Nv. 7" />
+
+        <TextView
+            android:id="@+id/textName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/imageCharacter"
+            app:layout_constraintEnd_toEndOf="@id/imageCharacter"
+            app:layout_constraintStart_toStartOf="@id/imageCharacter"
+            tools:text="Homem-Aranha" />
+
+        <ImageView
+            android:id="@+id/imageLock"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/imageCharacter"
+            app:layout_constraintEnd_toEndOf="@id/imageCharacter"
+            app:layout_constraintStart_toStartOf="@id/imageCharacter"
+            app:layout_constraintTop_toTopOf="@id/imageCharacter"
+            app:srcCompat="@drawable/ic_lock"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageCharacter">
+
+            <TextView
+                android:id="@+id/textPower"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/reward_gold"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="⚔ 82" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressXp"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="6dp"
+            android:layout_marginHorizontal="6dp"
+            android:layout_marginBottom="6dp"
+            android:max="100"
+            android:progressDrawable="@drawable/progress_xp_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:progress="40" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

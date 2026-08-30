@@ -1,0 +1,119 @@
+<resources>
+    <string name="app_name">Hero Nexus</string>
+    <string name="tagline">Colete. Monte seu time. Entre na batalha.</string>
+
+    <!-- Auth -->
+    <string name="login_title">Entrar</string>
+    <string name="login_email_hint">E-mail ou usuário</string>
+    <string name="login_password_hint">Senha</string>
+    <string name="login_button">Entrar</string>
+    <string name="login_no_account">Ainda não tem conta? Cadastre-se</string>
+    <string name="register_title">Criar conta</string>
+    <string name="register_username_hint">Nome de usuário</string>
+    <string name="register_email_hint">E-mail</string>
+    <string name="register_password_hint">Senha</string>
+    <string name="register_confirm_password_hint">Confirmação da senha</string>
+    <string name="register_button">Cadastrar</string>
+    <string name="register_have_account">Já tem conta? Entrar</string>
+    <string name="register_success">Conta criada com sucesso!</string>
+    <string name="error_fields_required">Preencha todos os campos.</string>
+    <string name="error_passwords_dont_match">As senhas não coincidem.</string>
+    <string name="error_generic">Algo deu errado. Tente novamente.</string>
+
+    <!-- Coleção -->
+    <string name="collection_title">Coleção</string>
+    <string name="search_hint">Buscar personagem…</string>
+    <string name="filter_all">Todos</string>
+    <string name="filter_unlocked">Desbloqueados</string>
+    <string name="filter_locked">Bloqueados</string>
+    <string name="filter_heroes">Heróis</string>
+    <string name="filter_antiheroes">Anti-heróis</string>
+    <string name="filter_villains">Vilões</string>
+    <string name="sort_power_desc">Maior poder</string>
+    <string name="sort_power_asc">Menor poder</string>
+    <string name="sort_name">Nome</string>
+    <string name="power_short">PODER</string>
+    <string name="locked_hint">Bloqueado</string>
+    <string name="empty_collection">Nenhum personagem encontrado.</string>
+
+    <!-- Ficha do personagem -->
+    <string name="attribute_strength">Força</string>
+    <string name="attribute_speed">Velocidade</string>
+    <string name="attribute_intelligence">Inteligência</string>
+    <string name="attribute_durability">Durabilidade</string>
+    <string name="attribute_power">Poder</string>
+    <string name="attribute_combat">Combate</string>
+    <string name="powers_title">Poderes</string>
+    <string name="about_title">Sobre</string>
+    <string name="compare_button">Comparar com outro personagem</string>
+    <string name="unlock_locked_hint">Este personagem ainda não foi desbloqueado. Consiga-o em baús, recompensas ou derrotando-o como chefe de fase.</string>
+    <string name="level_short">Nv. %1$d</string>
+
+    <!-- Comparação -->
+    <string name="compare_title">Comparação</string>
+    <string name="compare_pick_first">Escolha o 1º personagem</string>
+    <string name="compare_pick_second">Escolha o 2º personagem</string>
+
+    <!-- Time / Deck -->
+    <string name="team_title">Meu time</string>
+    <string name="team_slots_filled">%1$d/3 personagens selecionados</string>
+    <string name="team_save">Salvar time</string>
+    <string name="team_saved">Time salvo!</string>
+    <string name="team_max_reached">Você só pode levar até 3 personagens para a batalha.</string>
+    <string name="team_need_one">Selecione ao menos 1 personagem para batalhar.</string>
+    <string name="team_need_full">Selecione os 3 personagens do time para poder batalhar.</string>
+    <string name="team_start_battle">Iniciar batalha</string>
+
+    <!-- Batalha -->
+    <string name="battle_defeated_switch">%1$s DERROTADO</string>
+    <string name="battle_next_enters">%1$s entra na batalha!</string>
+    <string name="battle_defeat">DERROTA</string>
+    <string name="battle_victory">VITÓRIA</string>
+    <string name="boss_incoming">CHEFE SE APROXIMA</string>
+    <string name="boss_defeated">VILÃO DERROTADO</string>
+    <string name="new_character_unlocked">NOVO PERSONAGEM DESBLOQUEADO</string>
+
+    <!-- Resultado -->
+    <string name="result_enemies_defeated">Inimigos derrotados: %1$d</string>
+    <string name="result_boss_defeated">Chefe derrotado: %1$s</string>
+    <string name="result_xp_gained">XP ganho: +%1$d</string>
+    <string name="result_coins_gained">Moedas: +%1$d</string>
+    <string name="result_chest_awarded">Recompensa: %1$s</string>
+    <string name="result_play_again">Jogar novamente</string>
+    <string name="result_back_to_collection">Voltar para coleção</string>
+    <string name="result_try_again">Tentar novamente</string>
+
+    <!-- Missões -->
+    <string name="missions_title">Missões</string>
+    <string name="mission_reward">Recompensa: +%1$d XP, +%2$d moedas</string>
+    <string name="mission_completed">Concluída</string>
+    <string name="mission_claim">Resgatar</string>
+    <string name="mission_progress">%1$d/%2$d</string>
+
+    <!-- Baús -->
+    <string name="chests_title">Baús</string>
+    <string name="chest_hero">Baú de Herói</string>
+    <string name="chest_special">Baú Especial</string>
+    <string name="chest_open">Abrir</string>
+    <string name="chest_new_character">NOVO PERSONAGEM!</string>
+
+    <!-- Loja de skins -->
+    <string name="store_title">Loja de Skins</string>
+    <string name="skin_free">Grátis</string>
+    <string name="skin_price_coins">%1$d moedas</string>
+    <string name="skin_buy">Comprar</string>
+    <string name="skin_owned">Desbloqueado</string>
+    <string name="skin_purchase_confirm">Desbloquear traje por %1$d moedas?</string>
+    <string name="skin_not_enough_coins">Moedas insuficientes.</string>
+
+    <!-- Top bar / navegação -->
+    <string name="nav_collection">Coleção</string>
+    <string name="nav_team">Time</string>
+    <string name="nav_missions">Missões</string>
+    <string name="nav_chests">Baús</string>
+    <string name="nav_store">Loja</string>
+    <string name="nav_logout">Sair</string>
+
+    <!-- Créditos -->
+    <string name="api_credit">Dados de personagens fornecidos pela Comic Vine API</string>
+</resources>
