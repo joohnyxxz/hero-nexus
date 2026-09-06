@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Hero Nexus</string>
     <string name="tagline">Colete. Monte seu time. Entre na batalha.</string>
+    <string name="splash_loading">CARREGANDO HERÓIS…</string>
 
     <!-- Auth -->
     <string name="login_title">Entrar</string>
@@ -44,6 +45,7 @@
     <string name="attribute_power">Poder</string>
     <string name="attribute_combat">Combate</string>
     <string name="powers_title">Poderes</string>
+    <string name="no_powers_listed">Nenhum poder registrado</string>
     <string name="about_title">Sobre</string>
     <string name="compare_button">Comparar com outro personagem</string>
     <string name="unlock_locked_hint">Este personagem ainda não foi desbloqueado. Consiga-o em baús, recompensas ou derrotando-o como chefe de fase.</string>
@@ -66,11 +68,19 @@
 
     <!-- Batalha -->
     <string name="battle_defeated_switch">%1$s DERROTADO</string>
+    <string name="battle_loading">Carregando batalha…</string>
     <string name="battle_next_enters">%1$s entra na batalha!</string>
+    <string name="wave_cleared">TRECHO LIMPO! AVANCE →</string>
+    <string name="wave_advanced">TRECHO %1$d DE %2$d</string>
+    <string name="food_pickup">COMIDA GUARDADA! TOQUE PRA COMER</string>
+    <string name="food_consumed">+%1$d DE VIDA</string>
+    <string name="special_used">ESPECIAL!</string>
+    <string name="bonus_character_pickup">PERSONAGEM BÔNUS DESBLOQUEADO!</string>
     <string name="battle_defeat">DERROTA</string>
     <string name="battle_victory">VITÓRIA</string>
     <string name="boss_incoming">CHEFE SE APROXIMA</string>
     <string name="boss_defeated">VILÃO DERROTADO</string>
+    <string name="miniboss_defeated">%1$s DERROTADO!</string>
     <string name="new_character_unlocked">NOVO PERSONAGEM DESBLOQUEADO</string>
 
     <!-- Resultado -->

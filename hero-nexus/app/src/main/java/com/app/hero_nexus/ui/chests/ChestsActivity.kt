@@ -70,7 +70,18 @@ class ChestsActivity : MainNavActivity() {
                 return@launch
             }
             val reward = rollReward(uid, type)
-            applyReward(uid, reward)
+            // Rodada 10 (01/09): applyReward() não tinha try/catch nenhum -- uma falha aqui (ex:
+            // regra do Firestore) derrubava a coroutine inteira sem aviso pro usuário. Agora só
+            // avisa e segue mostrando o diálogo (o baú já foi consumido, então precisa dar o
+            // feedback mesmo se o crédito da recompensa falhar).
+            runCatching { applyReward(uid, reward) }.onFailure { e ->
+                android.util.Log.e("ChestsActivity", "Falha ao aplicar recompensa do baú", e)
+                Toast.makeText(
+                    this@ChestsActivity,
+                    "Recompensa sorteada mas não salvou no servidor (${e.message ?: "erro"}). Tente abrir outro baú se sobrar.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
             showRewardDialog(reward)
             refreshCounts()
             refreshProfileHeader(binding.topBar.textCoins, binding.topBar.textLevel)

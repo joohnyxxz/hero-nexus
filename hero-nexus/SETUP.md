@@ -77,6 +77,23 @@ comicVineApiKey=SUA_CHAVE_AQUI
 Ela é lida em `app/build.gradle.kts` e exposta como `BuildConfig.COMIC_VINE_API_KEY`. Se quiser trocar
 a chave depois, basta editar essa linha — não precisa mexer em nenhum arquivo `.kt`.
 
+## 2.1 Pexels API (opcional — imagens de fundo)
+
+Usada só pra buscar uma foto de fundo temática em telas que hoje são cor sólida (por enquanto,
+só a tela de login). **Totalmente opcional**: se a chave ficar vazia, o app não busca nada e o
+fundo continua a cor sólida de sempre — nada quebra.
+
+1. Crie uma conta gratuita em https://www.pexels.com/api/ e pegue sua API key.
+2. Adicione no mesmo `local.properties`:
+
+```
+pexelsApiKey=SUA_CHAVE_AQUI
+```
+
+Exposta como `BuildConfig.PEXELS_API_KEY`, lida por `BackgroundRepository`. Mesma regra de sempre:
+nunca cole a chave direto num arquivo `.kt` nem em exemplos de documentação — só em
+`local.properties`, que não vai pro Git.
+
 O app usa `filter=publisher:31` (ID da Marvel na Comic Vine) e busca até ~200 personagens mais
 populares (por `count_of_issue_appearances`), guardando tudo em cache local (Room) para não estourar
 o limite de requisições da API (seção 26 do documento).

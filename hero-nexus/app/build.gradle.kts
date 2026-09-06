@@ -15,6 +15,10 @@ val localProperties = Properties().apply {
     }
 }
 val comicVineApiKey: String = localProperties.getProperty("comicVineApiKey") ?: ""
+// Chave da Pexels API (opcional — usada só pra buscar imagens de fundo temáticas; se ficar
+// vazia o app simplesmente não busca fundo nenhum, sem quebrar nada). Mesma lógica de
+// segurança da Comic Vine: nunca commitada, só em local.properties.
+val pexelsApiKey: String = localProperties.getProperty("pexelsApiKey") ?: ""
 
 android {
     namespace = "com.app.hero_nexus"
@@ -30,6 +34,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "COMIC_VINE_API_KEY", "\"$comicVineApiKey\"")
+        buildConfigField("String", "PEXELS_API_KEY", "\"$pexelsApiKey\"")
     }
 
     buildTypes {

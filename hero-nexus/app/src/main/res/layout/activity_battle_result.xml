@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_deep_blue"
+    android:background="@drawable/bg_app_gradient"
     android:padding="@dimen/spacing_l">
 
     <TextView
@@ -12,10 +12,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:fontFamily="sans-serif-black"
+        android:fontFamily="@font/bebas_neue"
+        android:letterSpacing="0.03"
         android:textAllCaps="true"
         android:textColor="@color/reward_gold"
-        android:textSize="36sp"
+        android:textSize="44sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

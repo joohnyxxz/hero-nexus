@@ -51,6 +51,7 @@ class BattleResultActivity : AppCompatActivity() {
         binding.buttonPlayAgain.setText(if (victory) R.string.result_play_again else R.string.result_try_again)
         binding.buttonPlayAgain.setOnClickListener {
             startActivity(BattleActivity.newIntent(this, teamIds))
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             finish()
         }
         binding.buttonBackToCollection.setOnClickListener {
@@ -58,6 +59,7 @@ class BattleResultActivity : AppCompatActivity() {
                 Intent(this, CollectionActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             )
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             finish()
         }
     }

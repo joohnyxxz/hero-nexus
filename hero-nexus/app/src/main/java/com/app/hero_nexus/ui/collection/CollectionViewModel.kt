@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.hero_nexus.data.local.CharacterEntity
 import com.app.hero_nexus.data.local.toDomain
 import com.app.hero_nexus.data.model.Character
+import com.app.hero_nexus.data.model.CharacterCategory
 import com.app.hero_nexus.data.model.UserCharacterState
 import com.app.hero_nexus.data.repository.CharacterRepository
 import com.app.hero_nexus.data.repository.UserRepository
@@ -38,11 +39,26 @@ class CollectionViewModel(
             // senão não dá pra montar time nem entrar na batalha (seção 6/11 do documento).
             val cached = characterRepository.getAllCached()
             if (cached.isNotEmpty()) {
+                // Starters nunca podem ser vilão (revisão pós-validação rodada 13): categoria
+                // VILAO é justamente o que o reset abaixo tranca de novo, e os dois rodam no
+                // mesmo start() -- sem esse filtro, uma conta nova podia sortear um vilão como
+                // starter e perder aquele slot de time na hora, ficando com menos de
+                // MAX_TEAM_SIZE personagens jogáveis.
                 val starterIds = cached
+                    .filter { it.category != CharacterCategory.VILAO.name }
                     .sortedByDescending { it.countOfIssueAppearances }
                     .take(Constants.STARTER_CHARACTER_COUNT)
                     .map { it.comicVineId }
                 runCatching { userRepository.ensureStarterCharacters(uid, starterIds) }
+
+                // Migração única, rodada 13 (feedback 01/09: "tirar todos os viloes que
+                // conquistei pra eu começar do 0"). Roda logo depois dos starters -- mesmo
+                // padrão de "só mexe uma vez por conta" (a própria função é quem confere a
+                // flag antes de fazer qualquer coisa).
+                val villainIds = cached
+                    .filter { it.category == CharacterCategory.VILAO.name }
+                    .map { it.comicVineId }
+                runCatching { userRepository.runVillainResetOnceIfNeeded(uid, villainIds) }
             }
 
             userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(emptyMap())

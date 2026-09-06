@@ -8,8 +8,11 @@
     <color name="reward_gold">#FFC400</color>
     <color name="text_white">#FFFFFF</color>
     <color name="text_muted">#B7BDD1</color>
-    <color name="card_dark">#20242B</color>
-    <color name="card_dark_light">#2B303A</color>
+    <color name="card_dark">#262B36</color>
+    <color name="card_dark_light">#323A48</color>
+    <color name="card_stroke">#3A2F1E</color>
+    <!-- mesma linha dourada fina usada nas torres do cenario/logo, so que discreta -->
+    <color name="card_stroke_gold">#665328</color>
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>

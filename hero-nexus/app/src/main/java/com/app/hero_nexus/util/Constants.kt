@@ -49,4 +49,23 @@ object Constants {
     const val COL_MISSIONS_CATALOG = "missions_catalog"
 
     const val ROOM_DB_NAME = "hero_nexus_cache.db"
+
+    // Tradução PT-BR (documento revisado — a Comic Vine só retorna texto em inglês).
+    // MyMemory foi escolhido de propósito por NÃO exigir API key: depois do incidente de
+    // segurança, evitamos qualquer novo segredo pra guardar/vazar.
+    const val TRANSLATION_BASE_URL = "https://api.mymemory.translated.net/"
+    const val TRANSLATION_LANG_PAIR = "en|pt-BR"
+    /** E-mail de contato (não é segredo — o mesmo já usado no User-Agent da Comic Vine acima);
+     *  só serve pra liberar uma cota diária maior no MyMemory. */
+    const val TRANSLATION_CONTACT_EMAIL = "maldonadojoao326@gmail.com"
+    /** MyMemory limita ~500 bytes por texto enviado numa conta anônima; ficamos com folga. */
+    const val TRANSLATION_MAX_CHARS = 450
+
+    /** Tamanho máximo do texto "sobre" quando não há "deck" curto e é preciso cortar a description longa. */
+    const val ABOUT_MAX_CHARS = 420
+
+    // Pexels (imagens de fundo temáticas — seção 27 do documento: "outras APIs só quando
+    // houver necessidade real"). Opcional: sem chave, o app não busca fundo nenhum.
+    const val PEXELS_BASE_URL = "https://api.pexels.com/"
+    const val PEXELS_LOGIN_BG_QUERY = "comic book superhero action dramatic"
 }

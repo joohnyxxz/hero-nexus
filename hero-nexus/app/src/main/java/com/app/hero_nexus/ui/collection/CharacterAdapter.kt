@@ -2,10 +2,10 @@ package com.app.hero_nexus.ui.collection
 
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import com.google.android.material.card.MaterialCardView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -39,7 +39,7 @@ class CharacterAdapter(
             if (character.unlocked) {
                 binding.imageCharacter.colorFilter = null
                 binding.textLevel.text = ctx.getString(R.string.level_short, character.level)
-                binding.textPower.text = "⚔ ${character.stats.overallPower}"
+                binding.textPower.text = character.stats.overallPower.toString()
                 binding.progressXp.progress = (character.xp % 1000) / 10
             } else {
                 val grayscale = ColorMatrix().apply { setSaturation(0f) }
@@ -49,11 +49,19 @@ class CharacterAdapter(
 
             binding.textRarity.text = character.rarity.name
             val rarityColor = ContextCompat.getColor(ctx, rarityColorRes(character.rarity))
-            binding.textRarity.setTextColor(rarityColor)
-            ImageViewCompat.setImageTintList(
-                binding.layoutRarity.getChildAt(0) as android.widget.ImageView,
-                android.content.res.ColorStateList.valueOf(rarityColor)
-            )
+
+            // Rodada 12 (01/09): a raridade e o nivel viraram uma unica faixa colorida no topo
+            // do card (bg_card_header, tintada com a cor da raridade) em vez de dois chips soltos
+            // nos cantos -- texto escuro fixo (bg_deep_blue, ja definido no XML) pra ficar legivel
+            // em cima de qualquer uma das 4 cores de raridade.
+            binding.headerBar.backgroundTintList = android.content.res.ColorStateList.valueOf(rarityColor)
+
+            // Rodada 10 (01/09): antes a borda do card era sempre a mesma cor neutra
+            // (card_stroke) pra todo mundo, a raridade so aparecia no textinho pequeno no
+            // canto. Agora a moldura inteira do card usa a cor da raridade, o que da muito
+            // mais variedade visual pra grade inteira (feedback: "a visualizacao dos card
+            // poderia ser melhor").
+            (binding.root as MaterialCardView).strokeColor = rarityColor
 
             binding.root.setOnClickListener { onClick(character) }
         }

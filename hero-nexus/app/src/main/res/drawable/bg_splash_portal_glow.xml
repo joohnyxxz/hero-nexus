@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rodada 10.1 (01/09): reforca a identidade "Nexus" (o anel-portal que agora vive atras do N
+     na wordmark) tambem como um brilho ambiente bem sutil atras dela na splash, pra a marca nao
+     parecer um elemento isolado: um leve eco do mesmo motivo no fundo da tela toda. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <gradient
+        android:type="radial"
+        android:gradientRadius="260dp"
+        android:startColor="#33FFC400"
+        android:centerColor="#26E62429"
+        android:endColor="#00000000" />
+</shape>

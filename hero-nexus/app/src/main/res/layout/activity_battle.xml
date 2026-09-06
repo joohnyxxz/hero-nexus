@@ -54,17 +54,12 @@
                 tools:progress="80" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textEnemiesDefeated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/spacing_m"
-            android:textColor="@color/text_white"
-            tools:text="Inimigos: 3" />
-
+        <!-- Rodada 13 (feedback 01/09: "sem contador de quantos inimigos" , mais nostálgico
+             sem esse número piscando, o jogador só sente a dificuldade jogando). -->
         <ImageView
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_marginStart="@dimen/spacing_m"
             android:src="@drawable/ic_coin" />
 
         <TextView
@@ -159,5 +154,135 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="42dp"
         android:src="@drawable/ic_sword" />
+
+    <!-- Botão de especial: carrega com o dano causado (barrinha fina embaixo), guarda até 2 usos
+         prontos (pips ao lado): seção "especial", feedback 31/08. -->
+    <FrameLayout
+        android:id="@+id/buttonSpecial"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/spacing_l"
+        android:layout_marginBottom="118dp"
+        android:background="@drawable/bg_special_button">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_special" />
+
+        <ProgressBar
+            android:id="@+id/progressSpecialCharge"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="42dp"
+            android:layout_height="5dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="7dp"
+            android:max="100"
+            android:progressDrawable="@drawable/progress_special_charge"
+            tools:progress="40" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="38dp"
+        android:layout_marginBottom="182dp"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/pipSpecial1"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginEnd="5dp"
+            android:alpha="0.28"
+            android:background="@drawable/bg_special_pip" />
+
+        <View
+            android:id="@+id/pipSpecial2"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:alpha="0.28"
+            android:background="@drawable/bg_special_pip" />
+    </LinearLayout>
+
+    <!-- Botão de comida: só aparece quando tem algo guardado no slot. O jogador decide a hora
+         de comer, em vez de curar automaticamente ao quebrar a caixa/barril. -->
+    <FrameLayout
+        android:id="@+id/buttonFood"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="92dp"
+        android:layout_marginBottom="22dp"
+        android:background="@drawable/bg_food_button"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_food" />
+
+        <!-- Contador de cargas guardadas (0-3, rodada 13: "o slot para cura seria de 3
+             comidinhas"). -->
+        <TextView
+            android:id="@+id/textFoodCount"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="-4dp"
+            android:background="@drawable/bg_food_count_badge"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@color/text_white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            tools:text="3" />
+    </FrameLayout>
+
+    <!-- Overlay de carregamento: tela escura em degradê (sem spinner/texto: feedback 31/08:
+         "mais nostálgico só ir pra tela preta com uma transição, tipo de gradient") que some com
+         um fade suave assim que a arena está pronta (ver BattleActivity.dismissLoadingOverlay). -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_battle_transition"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Flash de miniboss derrotado: tela preta rápida, luta continua por baixo (feedback
+         01/09: "sabe em golden axe? vc mata um vilão, aparece uma tela preta mas ainda
+         continua na batalha, acho que deveria ser mais desafiante"). Sem clickable/focusable ,
+         diferente do loadingOverlay, esse não deve bloquear toque nenhum instante a mais que o
+         necessário, o jogo tá rolando por baixo o tempo todo. -->
+    <FrameLayout
+        android:id="@+id/minibossFlashOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:alpha="0"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textMinibossDefeated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/bebas_neue"
+            android:letterSpacing="0.04"
+            android:textColor="@color/reward_gold"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            tools:text="CHEFE DA GANGUE DERROTADO!" />
+    </FrameLayout>
 
 </FrameLayout>

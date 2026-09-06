@@ -5,7 +5,7 @@
     android:id="@+id/topBarRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/bg_deep_blue_light"
+    android:background="@drawable/bg_top_bar"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_m"

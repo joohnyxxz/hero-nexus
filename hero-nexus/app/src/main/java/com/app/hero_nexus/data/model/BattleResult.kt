@@ -9,5 +9,7 @@ data class BattleResult(
     val bossCharacterId: Int? = null,
     val xpGained: Int,
     val coinsGained: Int,
-    val chestAwarded: ChestType? = null
+    val chestAwarded: ChestType? = null,
+    /** Quantas vezes o drop raríssimo (0,2%, caixa/barril) saiu nessa batalha -- seção "loot". */
+    val bonusCharacterDrops: Int = 0
 )

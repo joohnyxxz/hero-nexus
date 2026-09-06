@@ -7,11 +7,16 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.app.hero_nexus.util.Constants
 
-@Database(entities = [CharacterEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [CharacterEntity::class, TranslationEntity::class],
+    version = 2,
+    exportSchema = false
+)
 @TypeConverters(StringListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun characterDao(): CharacterDao
+    abstract fun translationDao(): TranslationDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null
