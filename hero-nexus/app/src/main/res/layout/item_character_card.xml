@@ -7,8 +7,9 @@
     android:layout_margin="@dimen/spacing_s"
     app:cardBackgroundColor="@color/card_dark"
     app:cardCornerRadius="@dimen/card_corner_radius"
-    app:cardElevation="4dp"
-    app:strokeWidth="0dp">
+    app:cardElevation="0dp"
+    app:strokeColor="@color/card_stroke"
+    app:strokeWidth="2.5dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -26,6 +27,15 @@
 
         <View
             android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/overlay_card_vignette"
+            app:layout_constraintBottom_toBottomOf="@id/imageCharacter"
+            app:layout_constraintEnd_toEndOf="@id/imageCharacter"
+            app:layout_constraintStart_toStartOf="@id/imageCharacter"
+            app:layout_constraintTop_toTopOf="@id/imageCharacter" />
+
+        <View
+            android:layout_width="0dp"
             android:layout_height="60dp"
             android:background="@drawable/bg_gradient_scrim"
             app:layout_constraintBottom_toBottomOf="@id/imageCharacter"
@@ -33,45 +43,43 @@
             app:layout_constraintStart_toStartOf="@id/imageCharacter" />
 
         <LinearLayout
-            android:id="@+id/layoutRarity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="6dp"
-            android:background="@color/scrim"
+            android:id="@+id/headerBar"
+            android:layout_width="0dp"
+            android:layout_height="22dp"
+            android:background="@drawable/bg_card_header"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="3dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="2dp"
-                android:src="@drawable/ic_star" />
+            app:layout_constraintEnd_toEndOf="@id/imageCharacter"
+            app:layout_constraintStart_toStartOf="@id/imageCharacter"
+            app:layout_constraintTop_toTopOf="@id/imageCharacter">
 
             <TextView
                 android:id="@+id/textRarity"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_white"
-                android:textSize="10sp"
+                android:layout_weight="1"
+                android:paddingStart="8dp"
+                android:paddingEnd="4dp"
+                android:fontFamily="@font/bebas_neue"
+                android:letterSpacing="0.05"
+                android:textColor="@color/bg_deep_blue"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 tools:text="RARO" />
-        </LinearLayout>
 
-        <TextView
-            android:id="@+id/textLevel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="6dp"
-            android:background="@color/scrim"
-            android:padding="3dp"
-            android:textColor="@color/text_white"
-            android:textSize="10sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Nv. 7" />
+            <TextView
+                android:id="@+id/textLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingEnd="8dp"
+                android:fontFamily="@font/bebas_neue"
+                android:letterSpacing="0.02"
+                android:textColor="@color/bg_deep_blue"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="Nv. 7" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textName"
@@ -81,8 +89,10 @@
             android:layout_marginBottom="4dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:fontFamily="@font/bebas_neue"
+            android:letterSpacing="0.02"
             android:textColor="@color/text_white"
-            android:textSize="13sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/imageCharacter"
             app:layout_constraintEnd_toEndOf="@id/imageCharacter"
@@ -101,25 +111,50 @@
             app:srcCompat="@drawable/ic_lock"
             tools:visibility="visible" />
 
+        <View
+            android:id="@+id/dividerStats"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:background="@color/card_stroke_gold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageCharacter" />
+
         <LinearLayout
+            android:id="@+id/layoutStats"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="6dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_stat_chip"
             android:orientation="horizontal"
-            android:paddingHorizontal="6dp"
+            android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imageCharacter">
+            app:layout_constraintTop_toBottomOf="@id/dividerStats">
+
+            <ImageView
+                android:id="@+id/iconPower"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_sword"
+                app:tint="@color/reward_gold" />
 
             <TextView
                 android:id="@+id/textPower"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:fontFamily="@font/bebas_neue"
+                android:letterSpacing="0.02"
                 android:textColor="@color/reward_gold"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:textStyle="bold"
-                tools:text="⚔ 82" />
+                tools:text="82" />
         </LinearLayout>
 
         <ProgressBar
@@ -128,12 +163,14 @@
             android:layout_width="0dp"
             android:layout_height="6dp"
             android:layout_marginHorizontal="6dp"
+            android:layout_marginTop="4dp"
             android:layout_marginBottom="6dp"
             android:max="100"
             android:progressDrawable="@drawable/progress_xp_bar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutStats"
             tools:progress="40" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

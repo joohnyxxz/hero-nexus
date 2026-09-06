@@ -16,6 +16,16 @@
         <item name="android:statusBarColor">@color/bg_deep_blue</item>
         <item name="android:navigationBarColor">@color/bg_deep_blue</item>
         <item name="android:windowLightStatusBar">false</item>
+        <!-- Rodada 13 (01/09): a rodada anterior tinha ligado o Bebas Neue em TODA a tipografia
+             padrao do tema (headline small/medium, title large, label large, esse ultimo e o
+             que os botoes do Material3 usam por padrao), entao literalmente todo texto do app,
+             incluindo cada botao, virava esse fonte condensada em caixa alta. Feedback: "a fonte
+             utilizada ta muito pesada". Removido daqui: o app inteiro volta pro Roboto padrao
+             do Material3 (leve, legivel) como base. A identidade Bebas Neue continua existindo,
+             so que como escolha pontual em vez de padrao global: titulos de tela de verdade
+             (TextAppearance.Heronexus.Title, aplicado a mao nas barras de topo), a wordmark da
+             logo/splash, o cabecalho colorido do card de personagem, e a tela de resultado de
+             batalha, lugares onde o "peso" e intencional (impacto de HQ), nao o app inteiro. -->
     </style>
 
     <style name="Theme.Heronexus" parent="Base.Theme.Heronexus" />
@@ -25,24 +35,63 @@
     </style>
 
     <!-- Estilos reutilizáveis -->
+    <style name="TextAppearance.Heronexus.Headline" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/bebas_neue</item>
+        <item name="android:fontFamily">@font/bebas_neue</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="TextAppearance.Heronexus.ButtonLabel" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/bebas_neue</item>
+        <item name="android:fontFamily">@font/bebas_neue</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Rodada 13 (01/09): removido o textAllCaps forcado, caixa alta + Bebas Neue (que ja e
+         um desenho condensado/pesado por natureza) em TODO titulo de tela empilhava peso em cima
+         de peso. Mantido o Bebas Neue aqui de proposito (e o unico lugar de titulo de tela que
+         ainda usa, ligado a mao nas barras de topo, ver rodada 13 acima), so mais leve agora. -->
     <style name="TextAppearance.Heronexus.Title" parent="TextAppearance.Material3.HeadlineSmall">
         <item name="android:textColor">@color/text_white</item>
         <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/bebas_neue</item>
+        <item name="android:fontFamily">@font/bebas_neue</item>
+        <item name="android:letterSpacing">0.02</item>
     </style>
 
     <style name="TextAppearance.Heronexus.Body" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:textColor">@color/text_muted</item>
     </style>
 
+    <!-- Título grande tipo "arcade": telas de resultado de batalha, vitória/derrota etc. -->
+    <style name="TextAppearance.Heronexus.Display" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textColor">@color/text_white</item>
+        <item name="fontFamily">@font/bebas_neue</item>
+        <item name="android:fontFamily">@font/bebas_neue</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Rodada 13 (01/09): removido o Bebas Neue dos botoes , volta pro Roboto padrao do
+         Material3 (mantido negrito+leve letterspacing pra nao perder todo o toque de jogo). -->
     <style name="Widget.Heronexus.Button.Primary" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/combat_red</item>
         <item name="android:textColor">@color/text_white</item>
         <item name="cornerRadius">10dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textSize">16sp</item>
+        <item name="strokeColor">@color/reward_gold</item>
+        <item name="strokeWidth">1.5dp</item>
     </style>
 
     <style name="Widget.Heronexus.Button.Gold" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/reward_gold</item>
         <item name="android:textColor">@color/bg_deep_blue</item>
         <item name="cornerRadius">10dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textSize">16sp</item>
     </style>
 </resources>

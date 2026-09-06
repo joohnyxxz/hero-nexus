@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rodada 10 (01/09): filete vermelho fino embaixo da barra superior, pequeno toque de
+     variedade/energia num painel que antes era so um bloco solido de cor, igual o resto do app. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/bg_deep_blue_light" />
+    <item android:gravity="bottom" android:height="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/combat_red" />
+        </shape>
+    </item>
+</layer-list>

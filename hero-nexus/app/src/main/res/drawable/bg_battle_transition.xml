@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fundo do overlay de carregamento da batalha: degrade radial escuro em vez do preto liso com
+     spinner de antes (feedback do usuario 31/08: "mais nostalgico so ir pra tela preta com uma
+     transicao, tipo de gradient"). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:centerColor="@color/bg_deep_blue"
+        android:centerX="0.5"
+        android:centerY="0.42"
+        android:endColor="@color/black"
+        android:gradientRadius="480dp"
+        android:startColor="@color/bg_deep_blue_light"
+        android:type="radial" />
+</shape>

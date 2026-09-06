@@ -25,6 +25,10 @@ class UserRepository(
     val currentUid: String? get() = auth.currentUser?.uid
     val isLoggedIn: Boolean get() = auth.currentUser != null
 
+    companion object {
+        private const val FLAG_VILLAIN_RESET_V1 = "villainResetV1Applied"
+    }
+
     private fun userDoc(uid: String) = firestore.collection(Constants.COL_USERS).document(uid)
     private fun charactersCol(uid: String) = userDoc(uid).collection(Constants.COL_USER_CHARACTERS)
     private fun deckDoc(uid: String) = userDoc(uid).collection(Constants.COL_DECK).document("current")
@@ -75,9 +79,29 @@ class UserRepository(
             val current = snap.toObject(UserProfile::class.java) ?: UserProfile(uid = uid)
             val newXp = current.xp + xpDelta
             val newCoins = (current.coins + coinsDelta).coerceAtLeast(0)
-            val updated = current.copy(xp = newXp, coins = newCoins, level = UserProfile.levelForXp(newXp))
-            tx.set(userDoc(uid), updated)
-            updated
+            val newLevel = UserProfile.levelForXp(newXp)
+            // Rodada 1 (30/08): antes isso era tx.set(userDoc(uid), updated) completo, o que
+            // reescrevia o documento inteiro (uid/username/email incluídos) a cada batalha --
+            // provável causa do bug "moeda não funciona". Trocado pra tx.update() só nos 3
+            // campos que de fato mudam.
+            // Rodada 2 (31/08, bug ainda reportado): tx.update() lança NOT_FOUND se o documento
+            // do usuário não existir por qualquer motivo (conta antiga, falha anterior no
+            // onboarding, race condition na criação do doc) -- e diferente de outras chamadas
+            // (spendCoins/unlockCharacter), addXpAndCoins roda ao FIM de toda batalha, inclusive
+            // pra contas que talvez nunca tenham tido o doc criado direito. tx.set(..., merge)
+            // cobre os dois casos: cria o doc se não existir, e só sobrescreve os campos passados
+            // se já existir -- sem o risco de NOT_FOUND do update().
+            tx.set(
+                userDoc(uid),
+                mapOf(
+                    "uid" to uid,
+                    "xp" to newXp,
+                    "coins" to newCoins,
+                    "level" to newLevel
+                ),
+                SetOptions.merge()
+            )
+            current.copy(xp = newXp, coins = newCoins, level = newLevel)
         }.await()
     }
 
@@ -88,7 +112,10 @@ class UserRepository(
             if (current.coins < amount) {
                 false
             } else {
-                tx.update(userDoc(uid), "coins", current.coins - amount)
+                // Rodada 10 (01/09): mesma classe de bug do addXpAndCoins -- tx.update() lança
+                // NOT_FOUND se o doc do usuário não existir por qualquer motivo. tx.set(merge)
+                // cobre os dois casos sem sobrescrever o resto do perfil.
+                tx.set(userDoc(uid), mapOf("uid" to uid, "coins" to (current.coins - amount)), SetOptions.merge())
                 true
             }
         }.await()
@@ -98,7 +125,12 @@ class UserRepository(
 
     /** Chamado ao final de uma batalha vitoriosa (seção 18/23). */
     suspend fun awardChest(uid: String, type: ChestType) {
-        userDoc(uid).update(chestField(type), com.google.firebase.firestore.FieldValue.increment(1)).await()
+        // Rodada 10 (01/09): mesmo motivo do spendCoins -- update() direto (sem transação) lança
+        // NOT_FOUND se o doc não existir ainda. set(merge) com FieldValue.increment funciona igual.
+        userDoc(uid).set(
+            mapOf("uid" to uid, chestField(type) to com.google.firebase.firestore.FieldValue.increment(1)),
+            SetOptions.merge()
+        ).await()
     }
 
     /** Consome um baú disponível de forma atômica; retorna false se não havia nenhum. */
@@ -110,7 +142,7 @@ class UserRepository(
             if (count <= 0) {
                 false
             } else {
-                tx.update(userDoc(uid), chestField(type), count - 1)
+                tx.set(userDoc(uid), mapOf("uid" to uid, chestField(type) to (count - 1)), SetOptions.merge())
                 true
             }
         }.await()
@@ -155,6 +187,28 @@ class UserRepository(
         charactersCol(uid).document(characterId.toString())
             .set(mapOf("equippedSkinId" to skinId), SetOptions.merge())
             .await()
+    }
+
+    /**
+     * Migração única, rodada 13 (feedback 01/09: "acho que vc pode tirar todos os viloes que
+     * conquistei pra eu começar do 0, lembrando que nao da pra conseguir um vilao hiper mega bom
+     * no começo, pra nao ficar roubado se desbloqueado"). Zera o `unlocked` de todo vilão que a
+     * conta já tinha conquistado, pra a progressão de vilões (que já sobe em ordem crescente de
+     * poder, ver BattleActivity.pickBoss) recomeçar do zero -- sem isso o jogador ficaria com
+     * vilões fortes já desbloqueados de graça, o que tornaria o novo balanceamento (mais luta,
+     * minibosses) sem graça nenhuma pra quem já tinha avançado. Gated por uma flag no doc raiz
+     * do usuário pra rodar no máximo uma vez por conta, nunca de novo.
+     */
+    suspend fun runVillainResetOnceIfNeeded(uid: String, villainIds: List<Int>) {
+        if (villainIds.isEmpty()) return
+        val snap = userDoc(uid).get().await()
+        if (snap.getBoolean(FLAG_VILLAIN_RESET_V1) == true) return
+        val batch = firestore.batch()
+        villainIds.forEach { id ->
+            batch.set(charactersCol(uid).document(id.toString()), mapOf("unlocked" to false), SetOptions.merge())
+        }
+        batch.set(userDoc(uid), mapOf("uid" to uid, FLAG_VILLAIN_RESET_V1 to true), SetOptions.merge())
+        batch.commit().await()
     }
 
     // --------------------------------------------------------------------------------- Time / deck

@@ -24,6 +24,18 @@ fun String?.stripHtml(): String {
 
 fun String?.asHtmlSpanned() = HtmlCompat.fromHtml(this ?: "", HtmlCompat.FROM_HTML_MODE_COMPACT)
 
+/**
+ * Corta um texto longo demais (ex: campo "sobre" do personagem) num tamanho exibível,
+ * tentando não quebrar no meio de uma palavra, e adiciona "…" no final.
+ */
+fun String.truncateWithEllipsis(maxLength: Int): String {
+    if (length <= maxLength) return this
+    val cut = substring(0, maxLength).trimEnd()
+    val lastSpace = cut.lastIndexOf(' ')
+    val safeCut = if (lastSpace > maxLength * 0.6) cut.substring(0, lastSpace) else cut
+    return "$safeCut…"
+}
+
 fun View.visible() { visibility = View.VISIBLE }
 fun View.gone() { visibility = View.GONE }
 fun View.visibleIf(condition: Boolean) { visibility = if (condition) View.VISIBLE else View.GONE }
