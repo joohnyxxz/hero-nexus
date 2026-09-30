@@ -26,14 +26,33 @@ class CollectionViewModel(
     private val _refreshState = MutableLiveData<Resource<Unit>>()
     val refreshState: LiveData<Resource<Unit>> = _refreshState
 
+    /** Rodada 15, parte 13 (30/09/2026): estado só de "carregar mais" (scroll até o fim),
+     * separado do [refreshState] acima (que é sobre a 1ª leva / pull-to-refresh). */
+    private val _loadMoreState = MutableLiveData<Resource<Unit>>()
+    val loadMoreState: LiveData<Resource<Unit>> = _loadMoreState
+
+    private var isLoadingMore = false
+    val hasMore: Boolean get() = characterRepository.hasMore
+
     private var lastEntities: List<CharacterEntity> = emptyList()
     private var userStates: Map<Int, UserCharacterState> = emptyMap()
 
     fun start(uid: String) {
+        // Observa o Room desde já: se já tiver cache válido, a tela pinta na hora, sem esperar
+        // a leva de rede abaixo (que aí nem precisa rodar, ver ensureFirstBatch).
+        viewModelScope.launch {
+            characterRepository.observeCollection().collect { entities ->
+                lastEntities = entities
+                recompute()
+            }
+        }
+
         viewModelScope.launch {
             _refreshState.value = Resource.Loading
-            val result = characterRepository.refreshIfNeeded()
-            _refreshState.value = result
+            _refreshState.value = characterRepository.ensureFirstBatch()
+
+            userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(emptyMap())
+            recompute()
 
             // Jogador novo (sem NENHUM personagem registrado ainda) começa com alguns já desbloqueados,
             // senão não dá pra montar time nem entrar na batalha (seção 6/11 do documento).
@@ -59,17 +78,31 @@ class CollectionViewModel(
                     .filter { it.category == CharacterCategory.VILAO.name }
                     .map { it.comicVineId }
                 runCatching { userRepository.runVillainResetOnceIfNeeded(uid, villainIds) }
-            }
 
-            userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(emptyMap())
-
-            characterRepository.observeCollection().collect { entities ->
-                lastEntities = entities
+                // As duas migrações acima podem ter desbloqueado personagem (starter novo) --
+                // busca os estados de novo pra a coleção refletir isso sem precisar de outro evento.
+                userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(userStates)
                 recompute()
             }
         }
     }
 
+    /**
+     * "Por partes": chamado quando o usuário rola até perto do fim da grade (ver
+     * CollectionActivity). Busca mais [Constants.LOAD_MORE_BATCH_TARGET] personagens Marvel
+     * novos e acrescenta ao cache -- a lista observada em [characters] cresce sozinha.
+     */
+    fun loadMore() {
+        if (isLoadingMore || !hasMore) return
+        isLoadingMore = true
+        viewModelScope.launch {
+            _loadMoreState.value = Resource.Loading
+            _loadMoreState.value = characterRepository.loadMore()
+            isLoadingMore = false
+        }
+    }
+
+    /** Puxar-para-atualizar: refaz a primeira leva com a Comic Vine. */
     fun refresh(uid: String) {
         viewModelScope.launch {
             _refreshState.value = Resource.Loading

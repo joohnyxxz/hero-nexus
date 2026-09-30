@@ -13,8 +13,40 @@ object Constants {
     /** ID do publisher "Marvel" na Comic Vine (comicvine.gamespot.com/marvel/4010-31/). */
     const val MARVEL_PUBLISHER_ID = 31
 
-    /** Quantos personagens buscar por página (máximo permitido pela API é 100). */
+    /** Quantos personagens buscar por página NA COMIC VINE, em cada requisição individual
+     * (máximo permitido pela API é 100). Não é o total exibido de uma vez pro usuário -- ver
+     * INITIAL_PAGE_TARGET/LOAD_MORE_BATCH_TARGET abaixo. */
     const val CHARACTERS_PAGE_SIZE = 50
+
+    /** Rodada 15, parte 13 (30/09/2026): listagem "por partes" de novo, agora em cima da base
+     * simples que já provou funcionar (sem cursor em SharedPreferences, sem rodapé dentro do
+     * RecyclerView -- ver comentário em CharacterRepository.kt e CollectionActivity.kt pros
+     * motivos). Quantos personagens Marvel a Coleção tenta ter prontos ANTES de sair da splash
+     * / pintar a primeira tela. */
+    const val INITIAL_PAGE_TARGET = 20
+
+    /** Quantos personagens Marvel NOVOS uma leva de "carregar mais" (scroll até o fim) busca. */
+    const val LOAD_MORE_BATCH_TARGET = 20
+
+    /** Teto de requisições à Comic Vine POR leva (inicial ou "carregar mais") -- o filtro
+     * `publisher:` do lado do servidor da própria Comic Vine é furado (bug documentado desde a
+     * segunda rodada), então às vezes é preciso varrer mais de uma página pra achar Marvel de
+     * verdade; este teto evita ficar preso nisso indefinidamente numa faixa pobre do catálogo. */
+    const val MAX_REQUESTS_PER_BATCH = 8
+
+    /** Teto de tempo pra UMA leva (inicial ou "carregar mais") inteira, cabendo até
+     * MAX_REQUESTS_PER_BATCH chamadas sequenciais. Rodada 15, parte 14 (30/09/2026): corrigido
+     * de 15s pra 25s -- o valor antigo era MENOR que o timeout de uma única chamada (20s, em
+     * NetworkModule), então numa rede mais lenta uma chamada sozinha já estourava o teto do
+     * conjunto inteiro. Agora tem espaço de verdade pra mais de uma chamada terminar; além
+     * disso, CharacterRepository.fetchBatch() não descarta mais o que já foi buscado se o tempo
+     * acabar no meio do caminho -- ver comentário lá. */
+    const val BATCH_LOAD_TIMEOUT_MILLIS = 25_000L
+
+    /** Teto de tempo extra que a splash espera pela primeira leva antes de navegar mesmo assim
+     * (nunca trava o app numa rede ruim/fora do ar -- a Coleção lida com cache vazio/erro do
+     * jeito de sempre nesse caso). */
+    const val SPLASH_PREFETCH_TIMEOUT_MS = 6000L
 
     /** Cache local: depois desse tempo os dados podem ser atualizados (seção 26 - evitar chamadas desnecessárias). */
     const val CACHE_TTL_MILLIS = 24L * 60L * 60L * 1000L // 24h
