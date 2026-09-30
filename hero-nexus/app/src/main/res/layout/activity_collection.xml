@@ -153,6 +153,21 @@
                 android:text="@string/empty_collection"
                 android:textAppearance="@style/TextAppearance.Heronexus.Body"
                 android:visibility="gone" />
+
+            <!-- Rodada 15, parte 13 (30/09/2026): indicador de "carregar mais", de propósito
+                 uma ProgressBar comum do layout, NUNCA um item dentro do RecyclerView (ver
+                 comentário em CollectionActivity.kt pro motivo: foi mexer no adapter durante um
+                 callback de scroll que causou a exceção real de uma rodada anterior). Fica sobre
+                 o canto inferior da grade só enquanto uma leva de "carregar mais" está em
+                 andamento (CollectionActivity observa loadMoreState e alterna a visibilidade). -->
+            <ProgressBar
+                android:id="@+id/progressLoadMore"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="@dimen/spacing_m"
+                android:indeterminateTint="@color/reward_gold"
+                android:visibility="gone" />
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
