@@ -20,8 +20,8 @@
             android:id="@+id/textMissionTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Heronexus.Subtitle"
             android:textColor="@color/text_white"
-            android:textStyle="bold"
             tools:text="Derrote 20 inimigos" />
 
         <TextView
@@ -29,8 +29,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.Heronexus.Label"
             android:textColor="@color/reward_gold"
-            android:textSize="12sp"
             tools:text="Recompensa: +100 XP, +200 moedas" />
 
         <LinearLayout
@@ -54,8 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_s"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp"
+                android:textAppearance="@style/TextAppearance.Heronexus.Label"
                 tools:text="12/20" />
         </LinearLayout>
 
@@ -66,7 +65,6 @@
             android:layout_height="40dp"
             android:layout_marginTop="@dimen/spacing_s"
             android:text="@string/mission_claim"
-            android:textSize="13sp"
             android:visibility="gone"
             tools:visibility="visible" />
 

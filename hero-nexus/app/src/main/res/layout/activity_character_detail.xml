@@ -54,8 +54,8 @@
                         android:id="@+id/textRarity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Heronexus.Label"
                         android:textColor="@color/reward_gold"
-                        android:textSize="12sp"
                         android:textStyle="bold"
                         tools:text="RARO" />
 
@@ -63,15 +63,15 @@
                         android:id="@+id/textName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Heronexus.Title"
                         android:textColor="@color/text_white"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
                         tools:text="Homem-Aranha" />
 
                     <TextView
                         android:id="@+id/textLevelPower"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Heronexus.Label"
                         android:textColor="@color/text_muted"
                         tools:text="Nível 7  •  Poder geral 82" />
                 </LinearLayout>
@@ -92,6 +92,7 @@
                     android:background="@color/card_dark"
                     android:padding="@dimen/spacing_m"
                     android:text="@string/unlock_locked_hint"
+                    android:textAppearance="@style/TextAppearance.Heronexus.Body"
                     android:textColor="@color/reward_gold"
                     android:visibility="gone"
                     tools:visibility="visible" />
@@ -107,8 +108,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_m"
                     android:text="@string/powers_title"
-                    android:textAppearance="@style/TextAppearance.Heronexus.Title"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.Heronexus.Subtitle" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupPowers"
@@ -121,8 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_m"
                     android:text="@string/about_title"
-                    android:textAppearance="@style/TextAppearance.Heronexus.Title"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.Heronexus.Subtitle" />
 
                 <TextView
                     android:id="@+id/textDescription"
@@ -147,8 +146,7 @@
                     android:layout_marginTop="@dimen/spacing_l"
                     android:gravity="center"
                     android:text="@string/api_credit"
-                    android:textColor="@color/text_muted"
-                    android:textSize="10sp" />
+                    android:textAppearance="@style/TextAppearance.Heronexus.Micro" />
 
             </LinearLayout>
         </LinearLayout>

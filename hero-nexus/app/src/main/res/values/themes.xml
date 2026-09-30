@@ -26,6 +26,14 @@
              (TextAppearance.Heronexus.Title, aplicado a mao nas barras de topo), a wordmark da
              logo/splash, o cabecalho colorido do card de personagem, e a tela de resultado de
              batalha, lugares onde o "peso" e intencional (impacto de HQ), nao o app inteiro. -->
+        <!-- Rodada 15, parte 4 (29/09/2026): o Roboto do comentario acima nunca foi escolhido de
+             proposito, era so o default do Material3 quando nada e' setado no tema. Pedido do
+             usuario: usar Inter (font/inter.xml, SIL OFL) como fonte padrao de leitura do app,
+             porque combina com o novo conjunto de icones Heroicons Outline. Vira o default do
+             tema inteiro; os pontos de "impacto" acima continuam com Bebas Neue (esses estilos
+             re-declaram fontFamily/android:fontFamily pra sobrescrever este default, ver abaixo). -->
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
 
     <style name="Theme.Heronexus" parent="Base.Theme.Heronexus" />
@@ -34,11 +42,18 @@
         <item name="android:windowBackground">@color/bg_deep_blue</item>
     </style>
 
-    <!-- Estilos reutilizáveis -->
+    <!-- ================== Escala tipográfica (ver comentário longo em dimens.xml) ==================
+         Registro de menu/leitura: Display > Title > Subtitle > Body > Label > Micro.
+         Só Display/Title usam Bebas Neue (herdado dos "pontos de impacto" da rodada 13); os
+         demais herdam o Inter do tema sem precisar redeclarar fontFamily. -->
+
+    <!-- Reservado (não usado em nenhum layout hoje, mantido por compatibilidade com quem já
+         referenciar essa TextAppearance). Alinhado ao degrau Title da escala nova. -->
     <style name="TextAppearance.Heronexus.Headline" parent="TextAppearance.Material3.HeadlineSmall">
         <item name="fontFamily">@font/bebas_neue</item>
         <item name="android:fontFamily">@font/bebas_neue</item>
         <item name="android:letterSpacing">0.02</item>
+        <item name="android:textSize">@dimen/text_size_title</item>
     </style>
 
     <style name="TextAppearance.Heronexus.ButtonLabel" parent="TextAppearance.Material3.LabelLarge">
@@ -51,17 +66,42 @@
     <!-- Rodada 13 (01/09): removido o textAllCaps forcado, caixa alta + Bebas Neue (que ja e
          um desenho condensado/pesado por natureza) em TODO titulo de tela empilhava peso em cima
          de peso. Mantido o Bebas Neue aqui de proposito (e o unico lugar de titulo de tela que
-         ainda usa, ligado a mao nas barras de topo, ver rodada 13 acima), so mais leve agora. -->
+         ainda usa, ligado a mao nas barras de topo, ver rodada 13 acima), so mais leve agora.
+         Rodada 15 parte 4: tamanho 18sp -> @dimen/text_size_title (22sp), pra dar mais presença
+         de "título de tela de verdade" (era quase do mesmo tamanho que texto de card antes). -->
     <style name="TextAppearance.Heronexus.Title" parent="TextAppearance.Material3.HeadlineSmall">
         <item name="android:textColor">@color/text_white</item>
         <item name="android:textStyle">bold</item>
         <item name="fontFamily">@font/bebas_neue</item>
         <item name="android:fontFamily">@font/bebas_neue</item>
         <item name="android:letterSpacing">0.02</item>
+        <item name="android:textSize">@dimen/text_size_title</item>
+    </style>
+
+    <!-- Segundo nível de menu: cabeçalho de seção dentro de uma tela, título de item de lista ou
+         card, subtítulo de diálogo. Antes cada um desses tinha o próprio número (15/16/18sp);
+         agora compartilham um único degrau nomeado. Usa Inter (herdado do tema). -->
+    <style name="TextAppearance.Heronexus.Subtitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/text_white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_size_subtitle</item>
     </style>
 
     <style name="TextAppearance.Heronexus.Body" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:textColor">@color/text_muted</item>
+        <item name="android:textSize">@dimen/text_size_body</item>
+    </style>
+
+    <!-- Metadado secundário: raridade, nível, recompensa, progresso, legenda de comparação. -->
+    <style name="TextAppearance.Heronexus.Label" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">@color/text_muted</item>
+        <item name="android:textSize">@dimen/text_size_label</item>
+    </style>
+
+    <!-- Letra miúda: crédito de API, selo de posição no time, texto de carregamento. -->
+    <style name="TextAppearance.Heronexus.Micro" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_muted</item>
+        <item name="android:textSize">@dimen/text_size_micro</item>
     </style>
 
     <!-- Título grande tipo "arcade": telas de resultado de batalha, vitória/derrota etc. -->
@@ -71,6 +111,38 @@
         <item name="android:fontFamily">@font/bebas_neue</item>
         <item name="android:letterSpacing">0.03</item>
         <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_size_display</item>
+    </style>
+
+    <!-- ================== Registro de HUD (ver comentário em dimens.xml) ================== -->
+
+    <!-- Nome/moedas glanceáveis: HUD de batalha (nome do lutador, moedas, nome do chefe) e barra
+         de topo (moedas, nível) fora da batalha. Sempre em negrito no próprio TextView (a cor
+         muda por contexto: branco, dourado, cor de raridade do chefe), só o tamanho é
+         compartilhado aqui. -->
+    <style name="TextAppearance.Heronexus.HudReadout" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">@dimen/text_size_hud_readout</item>
+    </style>
+
+    <!-- Banner de evento em batalha ("X DERROTADO"), aparece por cima da arena. -->
+    <style name="TextAppearance.Heronexus.HudBanner" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">@dimen/text_size_hud_banner</item>
+    </style>
+
+    <!-- Flash de miniboss derrotado: o "beat" dramático dentro da própria batalha, um degrau
+         abaixo do Display (que é reservado pra tela de resultado). Mantido em Bebas Neue, já era
+         um dos pontos de impacto estabelecidos. -->
+    <style name="TextAppearance.Heronexus.HudFlash" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/bebas_neue</item>
+        <item name="android:fontFamily">@font/bebas_neue</item>
+        <item name="android:textSize">@dimen/text_size_hud_flash</item>
+    </style>
+
+    <!-- Número grande e legível: valores de atributo na tela de comparação, número do slot vazio
+         no time. Cor e negrito ficam a cargo de cada TextView (nem todo uso é negrito, ex. o
+         placeholder do slot vazio é propositalmente discreto). -->
+    <style name="TextAppearance.Heronexus.StatValue" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">@dimen/text_size_stat_value</item>
     </style>
 
     <!-- Rodada 13 (01/09): removido o Bebas Neue dos botoes , volta pro Roboto padrao do
