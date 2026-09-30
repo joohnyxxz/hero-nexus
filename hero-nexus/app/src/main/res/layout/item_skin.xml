@@ -35,16 +35,15 @@
                 android:id="@+id/textSkinCharacterName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp"
+                android:textAppearance="@style/TextAppearance.Heronexus.Label"
                 tools:text="Homem-Aranha" />
 
             <TextView
                 android:id="@+id/textSkinName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Heronexus.Subtitle"
                 android:textColor="@color/text_white"
-                android:textStyle="bold"
                 tools:text="Traje prateado" />
         </LinearLayout>
 
@@ -54,7 +53,6 @@
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:minWidth="100dp"
-            android:textSize="12sp"
             tools:text="1.000 moedas" />
 
     </LinearLayout>

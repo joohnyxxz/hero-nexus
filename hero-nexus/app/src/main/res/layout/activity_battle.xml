@@ -39,6 +39,7 @@
                 android:id="@+id/textPlayerName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
                 android:textColor="@color/text_white"
                 android:textStyle="bold"
                 tools:text="Homem-Aranha" />
@@ -67,6 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
             android:textColor="@color/reward_gold"
             android:textStyle="bold"
             tools:text="120" />
@@ -88,6 +90,7 @@
             android:id="@+id/textBossName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
             android:textColor="@color/rarity_boss"
             android:textStyle="bold"
             tools:text="DUENDE VERDE" />
@@ -111,8 +114,8 @@
         android:background="@color/scrim"
         android:paddingHorizontal="@dimen/spacing_l"
         android:paddingVertical="@dimen/spacing_s"
+        android:textAppearance="@style/TextAppearance.Heronexus.HudBanner"
         android:textColor="@color/reward_gold"
-        android:textSize="20sp"
         android:textStyle="bold"
         android:visibility="gone"
         tools:text="DUENDE VERDE DERROTADO"
@@ -243,7 +246,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:textColor="@color/text_white"
-            android:textSize="11sp"
+            android:textSize="@dimen/text_size_micro"
             android:textStyle="bold"
             tools:text="3" />
     </FrameLayout>
@@ -277,10 +280,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:fontFamily="@font/bebas_neue"
+            android:textAppearance="@style/TextAppearance.Heronexus.HudFlash"
             android:letterSpacing="0.04"
             android:textColor="@color/reward_gold"
-            android:textSize="26sp"
             android:textStyle="bold"
             tools:text="CHEFE DA GANGUE DERROTADO!" />
     </FrameLayout>

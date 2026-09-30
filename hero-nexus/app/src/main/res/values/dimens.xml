@@ -13,4 +13,28 @@
     <dimen name="hud_bar_height">10dp</dimen>
     <dimen name="joystick_size">120dp</dimen>
     <dimen name="attack_button_size">84dp</dimen>
+
+    <!-- Escala tipográfica (rodada 15, parte 4, 29/09/2026): poucos degraus com saltos grandes
+         entre eles, em vez do que tinha antes (quase toda tela com seu próprio tamanho: 10, 11,
+         12, 13, 14, 15, 16, 18, 20, 24, 26, 44sp, tudo meio aleatório). Referência de jogo:
+         Golden Axe / Streets of Rage não fazem gradiente suave de tamanho, eles pulam entre 3
+         registros bem distintos — texto de evento/impacto (ENORME, raro, só nos momentos de
+         drama), placar/HUD (compacto mas sempre em negrito/cor forte, pra ler rápido durante a
+         ação) e texto de menu/leitura (hierarquia normal: título > subtítulo > corpo > legenda).
+         Cada dimen abaixo é usado em exatamente um desses papéis em todo o app, nunca escolhido
+         "no olho" tela por tela. -->
+
+    <!-- Registro de menu/leitura (telas fora da batalha: coleção, loja, missões, detalhe etc.) -->
+    <dimen name="text_size_display">40sp</dimen>      <!-- o texto mais dramático do app inteiro: VITÓRIA/DERROTA -->
+    <dimen name="text_size_title">22sp</dimen>        <!-- título da tela/diálogo atual (barra de topo, nome do personagem, título de recompensa) -->
+    <dimen name="text_size_subtitle">16sp</dimen>     <!-- segundo nível: cabeçalho de seção, título de item de lista/card -->
+    <dimen name="text_size_body">14sp</dimen>         <!-- texto corrido: descrição, linhas de resultado -->
+    <dimen name="text_size_label">12sp</dimen>        <!-- metadado secundário: raridade, nível, recompensa, progresso -->
+    <dimen name="text_size_micro">10sp</dimen>        <!-- letra miúda: crédito da API, selo de posição, texto de loading -->
+
+    <!-- Registro de HUD (durante a batalha, e números "chamativos" fora dela) -->
+    <dimen name="text_size_hud_flash">26sp</dimen>    <!-- flash de miniboss derrotado -->
+    <dimen name="text_size_hud_banner">20sp</dimen>   <!-- banner de evento em batalha ("X DERROTADO") -->
+    <dimen name="text_size_hud_readout">15sp</dimen>  <!-- nome/moedas glanceáveis (HUD de batalha e barra de topo) -->
+    <dimen name="text_size_stat_value">20sp</dimen>   <!-- número grande e legível: atributo do compare, número do slot vazio -->
 </resources>

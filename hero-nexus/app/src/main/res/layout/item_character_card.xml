@@ -63,7 +63,7 @@
                 android:fontFamily="@font/bebas_neue"
                 android:letterSpacing="0.05"
                 android:textColor="@color/bg_deep_blue"
-                android:textSize="11sp"
+                android:textSize="@dimen/text_size_label"
                 android:textStyle="bold"
                 tools:text="RARO" />
 
@@ -76,7 +76,7 @@
                 android:fontFamily="@font/bebas_neue"
                 android:letterSpacing="0.02"
                 android:textColor="@color/bg_deep_blue"
-                android:textSize="11sp"
+                android:textSize="@dimen/text_size_label"
                 android:textStyle="bold"
                 tools:text="Nv. 7" />
         </LinearLayout>
@@ -92,7 +92,7 @@
             android:fontFamily="@font/bebas_neue"
             android:letterSpacing="0.02"
             android:textColor="@color/text_white"
-            android:textSize="15sp"
+            android:textSize="@dimen/text_size_subtitle"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/imageCharacter"
             app:layout_constraintEnd_toEndOf="@id/imageCharacter"
@@ -152,7 +152,7 @@
                 android:fontFamily="@font/bebas_neue"
                 android:letterSpacing="0.02"
                 android:textColor="@color/reward_gold"
-                android:textSize="13sp"
+                android:textSize="@dimen/text_size_label"
                 android:textStyle="bold"
                 tools:text="82" />
         </LinearLayout>

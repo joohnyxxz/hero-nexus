@@ -26,8 +26,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textAppearance="@style/TextAppearance.Heronexus.StatValue"
             android:textColor="@color/text_muted"
-            android:textSize="20sp"
             tools:text="1" />
 
         <TextView
@@ -39,7 +39,7 @@
             android:background="@color/scrim"
             android:paddingHorizontal="4dp"
             android:textColor="@color/text_white"
-            android:textSize="10sp"
+            android:textSize="@dimen/text_size_micro"
             android:visibility="gone"
             tools:text="1º" />
     </FrameLayout>
