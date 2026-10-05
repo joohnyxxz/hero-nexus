@@ -4,6 +4,7 @@ import com.app.hero_nexus.BuildConfig
 import com.app.hero_nexus.util.Constants
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -37,6 +38,13 @@ object NetworkModule {
             }
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
+            // Rodada 15, parte 31 (30/09/2026): restaurado -- este .protocols(...) (fixando
+            // HTTP/1.1) tinha sido adicionado na parte 10 pra corrigir requisições à Comic Vine
+            // que ficavam presas/canceladas no aparelho real do usuário (negociação HTTP/2 do
+            // OkHttp lidando mal com a rede dele), e sumiu sem explicação depois da passagem do
+            // Gemini por este arquivo -- provavelmente a causa raiz real por trás de "não sei se
+            // ele cagou a listagem de cards".
+            .protocols(listOf(Protocol.HTTP_1_1))
             .build()
     }
 

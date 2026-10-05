@@ -23,6 +23,7 @@
 
     <!-- Coleção -->
     <string name="collection_title">Coleção</string>
+    <string name="collection_search_remote_empty">Nenhum personagem Marvel encontrado com esse nome na Comic Vine</string>
     <string name="search_hint">Buscar personagem…</string>
     <string name="filter_all">Todos</string>
     <string name="filter_unlocked">Desbloqueados</string>

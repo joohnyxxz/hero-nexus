@@ -3,6 +3,7 @@ package com.app.hero_nexus.ui.result
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.app.hero_nexus.R
 import com.app.hero_nexus.data.model.BattleResult
@@ -54,14 +55,32 @@ class BattleResultActivity : AppCompatActivity() {
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             finish()
         }
-        binding.buttonBackToCollection.setOnClickListener {
-            startActivity(
-                Intent(this, CollectionActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            )
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-            finish()
-        }
+        binding.buttonBackToCollection.setOnClickListener { goBackToCollection() }
+
+        // Rodada 15, parte 44 (04/10/2026): o botao "Voltar pra Colecao" ja limpava a pilha e
+        // ia pra CollectionActivity (CLEAR_TASK), mas o botao de VOLTAR do sistema (gesto/tecla
+        // de voltar do Android) nunca passava por esse codigo -- ele so fecha esta Activity e
+        // expoe o que sobrou na pilha por baixo. Como TeamSelectionActivity inicia a
+        // BattleActivity (sem CLEAR_TASK) e a propria BattleActivity se finish() depois de abrir
+        // esta tela de resultado, o que sobra embaixo na pilha e' sempre a tela de Time, nunca a
+        // de Colecao -- exatamente o "volta pra tela de time, nao de colecao" relatado pelo
+        // usuario. Registrando o mesmo destino (Colecao, com a pilha limpa) tambem pro back do
+        // sistema, pra sair desta tela de QUALQUER jeito (botao OU voltar do sistema) dar
+        // sempre no mesmo lugar.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                goBackToCollection()
+            }
+        })
+    }
+
+    private fun goBackToCollection() {
+        startActivity(
+            Intent(this, CollectionActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        )
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        finish()
     }
 
     companion object {

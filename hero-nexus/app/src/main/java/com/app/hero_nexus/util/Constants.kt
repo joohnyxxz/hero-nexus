@@ -15,8 +15,16 @@ object Constants {
 
     /** Quantos personagens buscar por página NA COMIC VINE, em cada requisição individual
      * (máximo permitido pela API é 100). Não é o total exibido de uma vez pro usuário -- ver
-     * INITIAL_PAGE_TARGET/LOAD_MORE_BATCH_TARGET abaixo. */
-    const val CHARACTERS_PAGE_SIZE = 50
+     * INITIAL_PAGE_TARGET/LOAD_MORE_BATCH_TARGET abaixo.
+     * Rodada 15, parte 31 (30/09/2026): o Gemini (IA do Android Studio, usado fora desta sessão
+     * enquanto meu limite semanal estava acabando) tinha subido este valor de volta pra 100,
+     * junto com INITIAL_PAGE_TARGET (20->100), LOAD_MORE_BATCH_TARGET (20->40),
+     * MAX_REQUESTS_PER_BATCH (8->15) e BATCH_LOAD_TIMEOUT_MILLIS (25s->40s) -- desfazendo, sem
+     * nenhum comentário explicando o porquê, várias rodadas de ajuste fino já testadas de
+     * verdade no aparelho do usuário (partes 6-14 acima, com Logcat real mostrando requisições
+     * com payload de 100 sendo canceladas por timeout). Restaurados aqui pros valores
+     * documentados e confirmados funcionando. */
+    const val CHARACTERS_PAGE_SIZE = 20
 
     /** Rodada 15, parte 13 (30/09/2026): listagem "por partes" de novo, agora em cima da base
      * simples que já provou funcionar (sem cursor em SharedPreferences, sem rodapé dentro do
@@ -43,6 +51,13 @@ object Constants {
      * acabar no meio do caminho -- ver comentário lá. */
     const val BATCH_LOAD_TIMEOUT_MILLIS = 25_000L
 
+    /** Rodada 15, parte 40 (04/10/2026): teto de tempo pra busca ao vivo por NOME na Comic Vine
+     * (barra de pesquisa da Coleção, ver CharacterRepository.searchRemote() /
+     * CollectionActivity.scheduleRemoteSearchIfNeeded()) -- bem mais curto que
+     * BATCH_LOAD_TIMEOUT_MILLIS porque é 1 chamada só (filter=name:X), nunca uma sequência de
+     * várias páginas como o scan por popularidade. */
+    const val SEARCH_REMOTE_TIMEOUT_MILLIS = 10_000L
+
     /** Teto de tempo extra que a splash espera pela primeira leva antes de navegar mesmo assim
      * (nunca trava o app numa rede ruim/fora do ar -- a Coleção lida com cache vazio/erro do
      * jeito de sempre nesse caso). */
@@ -55,7 +70,7 @@ object Constants {
     const val MAX_TEAM_SIZE = 3
 
     // Quantos personagens um jogador novo já recebe desbloqueados (precisa dar pra montar 1 time completo).
-    const val STARTER_CHARACTER_COUNT = MAX_TEAM_SIZE
+    const val STARTER_CHARACTER_COUNT = 3
 
     // XP (seção 19)
     const val XP_PER_ENEMY = 25

@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.recyclerview.widget.GridLayoutManager
@@ -20,12 +21,24 @@ import com.app.hero_nexus.ui.detail.CharacterDetailActivity
 import com.app.hero_nexus.util.Resource
 import com.app.hero_nexus.util.dpToPx
 import com.app.hero_nexus.util.visibleIf
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private enum class FilterType { ALL, UNLOCKED, LOCKED, HEROES, ANTIHEROES, VILLAINS }
 private enum class SortType { POWER_DESC, POWER_ASC, NAME }
 
 /** Quantos itens de folga antes do fim da lista visível já disparam a busca da próxima leva. */
 private const val LOAD_MORE_THRESHOLD = 6
+
+/** Rodada 15, parte 40 (04/10/2026): tempo que a barra de pesquisa espera depois da última
+ * tecla digitada antes de considerar buscar ao vivo na Comic Vine -- evita disparar uma
+ * requisição de rede a cada letra enquanto o usuário ainda está digitando. */
+private const val SEARCH_REMOTE_DEBOUNCE_MS = 600L
+
+/** Buscas com menos letras que isso nunca vão pra rede -- "h" ou "a" sozinhos bateriam na API
+ * sem necessidade e trariam resultado ambíguo demais pra valer a pena. */
+private const val MIN_REMOTE_SEARCH_QUERY_LENGTH = 2
 
 class CollectionActivity : MainNavActivity() {
 
@@ -52,6 +65,10 @@ class CollectionActivity : MainNavActivity() {
     // cards já vistos -- feio e sem sentido, apontado pelo usuário.
     private var loadMoreIsLoading = false
     private var isNearListEnd = false
+
+    /** Rodada 15, parte 40: job do debounce da busca ao vivo -- cancelado e reagendado a cada
+     * tecla digitada (ver scheduleRemoteSearchIfNeeded()). */
+    private var searchDebounceJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,9 +135,18 @@ class CollectionActivity : MainNavActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 searchQuery = s?.toString().orEmpty()
                 applyFiltersAndRender()
+                scheduleRemoteSearchIfNeeded()
             }
             override fun afterTextChanged(s: Editable?) = Unit
         })
+
+        // Rodada 15, parte 43 (04/10/2026): a tentativa da parte 42 de dar funcao propria pro
+        // icone de busca do teclado (disparar a busca na hora, sem esperar o debounce) foi
+        // removida por pedido explicito do usuario -- "tira essa parte de ter que clicar no
+        // icone de pesquisar... faz automatico quando percebe alteracao na barra de pesquisa".
+        // A busca remota continua 100% automatica: scheduleRemoteSearchIfNeeded() (debounce de
+        // 600ms, chamado a cada tecla pelo TextWatcher acima) ja dispara sozinha sem precisar
+        // de nenhum clique em nada.
 
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
             currentFilter = when (checkedIds.firstOrNull()) {
@@ -153,6 +179,21 @@ class CollectionActivity : MainNavActivity() {
             updateLoadMoreIndicator()
             if (state is Resource.Error) {
                 Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Rodada 15, parte 40 (04/10/2026): resultado da busca ao vivo (ver
+        // scheduleRemoteSearchIfNeeded()). Quando acha algo, a tela já atualiza sozinha --
+        // o novo personagem entra no Room e o Flow observado por viewModel.characters (acima)
+        // já refiltra com a mesma searchQuery automaticamente, sem precisar de nada aqui.
+        // Só avisamos o usuário nos 2 casos em que NADA aparece sozinho: erro de rede, ou busca
+        // que de fato não achou nenhum Marvel com esse nome no catálogo da Comic Vine.
+        viewModel.remoteSearchState.observe(this) { state ->
+            when {
+                state is Resource.Error ->
+                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+                state is Resource.Success && state.data == 0 ->
+                    Toast.makeText(this, getString(R.string.collection_search_remote_empty), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -190,6 +231,36 @@ class CollectionActivity : MainNavActivity() {
             true
         }
         popup.show()
+    }
+
+    /**
+     * Rodada 15, parte 40 (04/10/2026): se a busca local (sobre o que já está em cache) não
+     * achou NENHUM personagem com esse nome, espera um pouco (debounce) e então busca de
+     * verdade na Comic Vine por esse nome -- resolve o caso relatado de personagens que existem
+     * de verdade na Marvel (ex: Hulk, Viúva Negra) mas ainda não calharam de entrar na leva por
+     * popularidade que alimenta a lista (ver comentário em CharacterRepository.fetchBatch()).
+     *
+     * Checa de novo "existe localmente?" DEPOIS do delay (não só antes) -- o usuário pode ter
+     * digitado mais letras ou apagado tudo nesse meio tempo, e não queremos buscar uma query que
+     * já não é mais a atual.
+     */
+    private fun scheduleRemoteSearchIfNeeded() {
+        searchDebounceJob?.cancel()
+        val query = searchQuery.trim()
+        if (query.length < MIN_REMOTE_SEARCH_QUERY_LENGTH) return
+        searchDebounceJob = lifecycleScope.launch {
+            delay(SEARCH_REMOTE_DEBOUNCE_MS)
+            if (searchQuery.trim() != query) return@launch
+            // Rodada 15, parte 42 (04/10/2026): antes, bastava ALGUM personagem no cache ter o
+            // texto buscado como SUBSTRING do nome pra ja desistir de buscar na Comic Vine --
+            // bug real relatado pelo usuario: "She-Hulk" ja em cache contem "hulk", entao
+            // pesquisar "Hulk" nunca chegava a bater na API, mesmo o Hulk (personagem
+            // DIFERENTE) nao estando no cache. Agora so pula a busca remota se o nome ja em
+            // cache for EXATAMENTE igual ao texto buscado (ignorando caixa) -- ai sim ja temos
+            // esse personagem especifico, sem gastar uma chamada de rede a toa.
+            val hasExactLocalMatch = allCharacters.any { it.name.equals(query, ignoreCase = true) }
+            if (!hasExactLocalMatch) viewModel.searchRemote(query)
+        }
     }
 
     private fun applyFiltersAndRender() {

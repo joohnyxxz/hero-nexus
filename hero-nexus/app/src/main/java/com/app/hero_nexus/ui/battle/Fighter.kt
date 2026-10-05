@@ -25,10 +25,19 @@ abstract class Fighter(
     var lastAttackAtMs: Long = 0L
     var facingRight: Boolean = true
 
+    // Rodada 15, parte 50 (04/10/2026): timestamps pra animacao de dano/morte de qualquer
+    // Fighter com sprite -- hoje so usados por EnemyFighter (o jogador ja tem seu proprio
+    // mecanismo, playerHurtAtMs/DeathTransitionPhase, no BattleEngine).
+    var lastHurtAtMs: Long = 0L
+    var deathAnimStartMs: Long = 0L
+
     val isAlive: Boolean get() = health > 0
 
-    fun takeDamage(amount: Int) {
+    fun takeDamage(amount: Int, nowMs: Long = 0L) {
+        val wasAlive = isAlive
         health = (health - amount).coerceAtLeast(0)
+        if (amount > 0) lastHurtAtMs = nowMs
+        if (wasAlive && !isAlive) deathAnimStartMs = nowMs
     }
 
     /** Cura (ex: comida guardada no slot -- seção "loot"), sem passar do máximo. */
@@ -167,6 +176,15 @@ class EnemyFighter(
         else -> 1100L
     }
 ) {
+    // Rodada 15, parte 55 (04/10/2026): IA "Streets of Rage" -- so um numero limitado de
+    // inimigos engaja/ataca por vez (ver MAX_ENGAGED_ENEMIES/updateEnemies() em BattleEngine.kt),
+    // o resto espera rodeando. Default false -- promovido pra true la, nunca aqui.
+    var isEngaging: Boolean = false
+    // Rodada 15, parte 57 (04/10/2026): slot fixo (0..ENEMIES_PER_WAVE-1) dado no spawn --
+    // usado por quem tá esperando pra se distribuir num anel em volta do jogador em vez de
+    // convergir todo mundo pro mesmo ponto (ver updateEnemies() em BattleEngine.kt).
+    var waitSlot: Int = 0
+
     /** Recompensas ao derrotar (seção 14) -- miniboss paga o dobro de um capanga comum. */
     val rewardXp: Int get() = when {
         isBoss -> com.app.hero_nexus.util.Constants.XP_PER_BOSS
