@@ -95,14 +95,7 @@
             android:textStyle="bold"
             tools:text="DUENDE VERDE" />
 
-        <ProgressBar
-            android:id="@+id/progressBossHealth"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/hud_bar_height"
-            android:max="100"
-            android:progressDrawable="@drawable/progress_boss_health_bar"
-            tools:progress="70" />
+        <!-- Rodada 15, parte 52: barra de vida do chefe removida de proposito - pedido explicito do usuario ("da mais suspense nao saber quanto de vida o vilao tem"). O nome continua aparecendo, so a barra que sumiu. -->
     </LinearLayout>
 
     <!-- Banner de eventos (troca de personagem, chefe chegando, etc.) -->

@@ -34,6 +34,12 @@ class CollectionViewModel(
     private var isLoadingMore = false
     val hasMore: Boolean get() = characterRepository.hasMore
 
+    /** Rodada 15, parte 40 (04/10/2026): estado da busca ao vivo na Comic Vine (ver
+     * searchRemote() abaixo) -- separado de refreshState/loadMoreState porque é disparado pela
+     * barra de pesquisa, não pela splash/scroll. */
+    private val _remoteSearchState = MutableLiveData<Resource<Int>>()
+    val remoteSearchState: LiveData<Resource<Int>> = _remoteSearchState
+
     private var lastEntities: List<CharacterEntity> = emptyList()
     private var userStates: Map<Int, UserCharacterState> = emptyMap()
 
@@ -99,6 +105,21 @@ class CollectionViewModel(
             _loadMoreState.value = Resource.Loading
             _loadMoreState.value = characterRepository.loadMore()
             isLoadingMore = false
+        }
+    }
+
+    /**
+     * Rodada 15, parte 40 (04/10/2026): busca ao vivo por nome na Comic Vine -- chamada pela
+     * Activity (CollectionActivity.scheduleRemoteSearchIfNeeded()) quando a busca local (sobre o
+     * que já está em cache) não encontra nada com esse nome. Um resultado encontrado não precisa
+     * de nenhum recompute() manual aqui -- ele entra no Room (characterRepository.searchRemote
+     * insere via dao.insertAll) e o Flow já observado em start() atualiza [characters] sozinho,
+     * que por sua vez já está sendo refiltrado pela Activity com a mesma searchQuery.
+     */
+    fun searchRemote(query: String) {
+        viewModelScope.launch {
+            _remoteSearchState.value = Resource.Loading
+            _remoteSearchState.value = characterRepository.searchRemote(query)
         }
     }
 

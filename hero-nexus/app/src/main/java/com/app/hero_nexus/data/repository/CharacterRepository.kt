@@ -56,8 +56,10 @@ class CharacterRepository(
         val count = dao.count()
         val lastCached = dao.lastCachedAt() ?: 0L
         val isStale = System.currentTimeMillis() - lastCached > Constants.CACHE_TTL_MILLIS
-        if (count > 0 && !isStale) return Resource.Success(Unit)
-        return fetchBatch(target = Constants.INITIAL_PAGE_TARGET, replace = true)
+        // Rodada 15, parte 30: se tivermos menos que a meta inicial, buscamos mais mesmo que o 
+        // cache não esteja expirado, para evitar que a lista fique "pobre" (ex: só 5 cards).
+        if (count >= Constants.INITIAL_PAGE_TARGET && !isStale) return Resource.Success(Unit)
+        return fetchBatch(target = Constants.INITIAL_PAGE_TARGET, replace = count == 0 || isStale)
     }
 
     /**
@@ -115,7 +117,10 @@ class CharacterRepository(
                     requests++
                     totalResults = response.numberOfTotalResults
                     if (response.results.isEmpty()) break
-                    result += response.results.filter { it.publisher?.id == Constants.MARVEL_PUBLISHER_ID }
+                    result += response.results.filter { 
+                        it.publisher?.id == Constants.MARVEL_PUBLISHER_ID || 
+                        it.publisher?.name?.contains("Marvel", ignoreCase = true) == true 
+                    }
                     nextOffset += Constants.CHARACTERS_PAGE_SIZE
                 }
             }
@@ -159,6 +164,61 @@ class CharacterRepository(
             dao.insertAll(entities)
         }
         return Resource.Success(Unit)
+    }
+
+    /**
+     * Rodada 15, parte 40 (04/10/2026): busca ao vivo por NOME na Comic Vine (filter=name:X),
+     * usada pela barra de pesquisa da Coleção quando a lista já carregada não tem nenhum
+     * personagem com esse nome (ver CollectionActivity.scheduleRemoteSearchIfNeeded()).
+     * Diferente de fetchBatch() (que pagina por ranking global de aparições e só acha Marvel de
+     * quem calhar de aparecer na faixa já escaneada), esta busca é direta por nome -- acha
+     * qualquer personagem Marvel que exista no catálogo da Comic Vine, independente da posição
+     * dele nesse ranking. O resultado (quando é Marvel de verdade) é inserido no cache igual a
+     * um loadMore() -- fica salvo pra próxima vez, nunca é descartado depois da busca.
+     */
+    suspend fun searchRemote(query: String): Resource<Int> {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) return Resource.Success(0)
+        return try {
+            val response = withTimeoutOrNull(Constants.SEARCH_REMOTE_TIMEOUT_MILLIS) {
+                api.searchCharacters(filter = "name:$trimmed")
+            } ?: return Resource.Error("A Comic Vine demorou demais pra responder essa busca. Tente de novo.")
+
+            // Rodada 15, parte 44 (04/10/2026): ate aqui, um status_code de erro vindo da
+            // propria Comic Vine (ex: chave invalida, limite de requisicoes, filtro mal
+            // formado) nunca era conferido -- nem aqui nem em fetchBatch() (mesmo ponto cego ja
+            // existia la, so nunca deu pra notar porque a leva por popularidade normalmente
+            // funciona). Isso fazia um erro de API ficar DISFARCADO de "busquei e nao achei
+            // nenhum Marvel com esse nome" (response.results simplesmente vem vazio nos dois
+            // casos), que e exatamente o toast que o usuario via mesmo quando o problema real
+            // era a chamada em si ter falhado, nao a busca ter sido mal sucedida. A Comic Vine
+            // usa status_code = 1 pra "OK" -- qualquer outro valor agora vira um erro de
+            // verdade, visivel, em vez de cair direto no filtro de publisher como se tivesse
+            // vindo uma lista vazia de respostas normais.
+            if (response.statusCode != 1) {
+                return Resource.Error(
+                    "Comic Vine recusou a busca (status ${response.statusCode}: ${response.error})."
+                )
+            }
+
+            // Mesmo critério de filtro client-side já usado em fetchBatch() -- o filtro
+            // publisher:X do lado do servidor da própria Comic Vine é furado (bug documentado
+            // desde a segunda rodada), então searchCharacters() também devolve qualquer
+            // publisher cujo nome bateu, não só Marvel.
+            val entities = response.results
+                .filter {
+                    it.publisher?.id == Constants.MARVEL_PUBLISHER_ID ||
+                        it.publisher?.name?.contains("Marvel", ignoreCase = true) == true
+                }
+                .distinctBy { it.id }
+                .filter { !it.name.isNullOrBlank() }
+                .map { it.toEntity() }
+
+            if (entities.isNotEmpty()) dao.insertAll(entities)
+            Resource.Success(entities.size)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Falha ao buscar na Comic Vine", e)
+        }
     }
 
     private fun CharacterDto.toEntity(): CharacterEntity {
