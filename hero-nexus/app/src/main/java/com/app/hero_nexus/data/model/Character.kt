@@ -52,13 +52,27 @@ data class Character(
     val isBossCandidate: Boolean,
     val stats: BattleStats,
     val siteDetailUrl: String?,
+    // Rodada 15, parte 58 (07/10/2026): campo mantido só por compatibilidade com o Room (coluna
+    // já existe, trocar de novo o schema zeraria o cache à toa) -- NÃO é mais usado por
+    // [rarity] abaixo. Motivo (feedback do usuário depois de ver o top-3 da parte 57 em ação):
+    // um limiar relativo ("os N melhores do catálogo JÁ CARREGADO") muda de resultado conforme
+    // mais personagens entram no cache -- um personagem podia ser LENDARIO hoje e virar EPICO
+    // de uma hora pra outra só porque "carregar mais" trouxe alguém com OVR maior, mudando o
+    // tipo visual do card sem o personagem em si ter mudado nada. Isso é feio e imprevisível.
+    val isTopRanked: Boolean = false,
     // Estado do jogador (Firestore); valores padrão = personagem ainda não visto/desbloqueado.
     val unlocked: Boolean = false,
     val level: Int = 1,
     val xp: Int = 0,
     val equippedSkinId: String? = null
 ) {
-    val rarity: Rarity get() = Rarity.fromPower(stats.overallPower)
+    /** Rodada 15, parte 58 (07/10/2026): raridade volta a ser 100% limiar fixo de Poder Geral
+     * (ver [Rarity.fromPower]) -- "quem realmente é bom" é LENDARIO, ponto, sem depender de
+     * quantos personagens já foram carregados nem de um recorte fixo de N posições. A correção
+     * de verdade pro "Gavião Arqueiro > Doutor Destino" já está no CÁLCULO do OVR (ver
+     * [PowerCalculator] -- bônus de categoria), não em remendar o resultado aqui por cima. */
+    val rarity: Rarity
+        get() = Rarity.fromPower(stats.overallPower)
 }
 
 /** Estado do jogador para UM personagem, como guardado no Firestore (seção 25 - user_characters). */

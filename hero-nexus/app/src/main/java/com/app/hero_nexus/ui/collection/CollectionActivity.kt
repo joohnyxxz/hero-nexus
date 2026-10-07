@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.hero_nexus.R
 import com.app.hero_nexus.data.model.Character
 import com.app.hero_nexus.data.model.CharacterCategory
+import com.app.hero_nexus.data.model.Rarity
 import com.app.hero_nexus.databinding.ActivityCollectionBinding
 import com.app.hero_nexus.ui.common.MainNavActivity
 import com.app.hero_nexus.ui.detail.CharacterDetailActivity
@@ -25,7 +26,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private enum class FilterType { ALL, UNLOCKED, LOCKED, HEROES, ANTIHEROES, VILLAINS }
+// Rodada 15, parte 65 (07/10/2026): quatro valores novos (RARITY_*) pro pedido do usuário de
+// conseguir filtrar a listagem por raridade, direto -- antes só dava pra filtrar por
+// estado (desbloqueado/bloqueado) ou alinhamento (herói/anti-herói/vilão).
+private enum class FilterType {
+    ALL, UNLOCKED, LOCKED, HEROES, ANTIHEROES, VILLAINS,
+    RARITY_COMUM, RARITY_RARO, RARITY_EPICO, RARITY_LENDARIO
+}
 private enum class SortType { POWER_DESC, POWER_ASC, NAME }
 
 /** Quantos itens de folga antes do fim da lista visível já disparam a busca da próxima leva. */
@@ -155,6 +162,10 @@ class CollectionActivity : MainNavActivity() {
                 R.id.chipHeroes -> FilterType.HEROES
                 R.id.chipAntiHeroes -> FilterType.ANTIHEROES
                 R.id.chipVillains -> FilterType.VILLAINS
+                R.id.chipRarityComum -> FilterType.RARITY_COMUM
+                R.id.chipRarityRaro -> FilterType.RARITY_RARO
+                R.id.chipRarityEpico -> FilterType.RARITY_EPICO
+                R.id.chipRarityLendario -> FilterType.RARITY_LENDARIO
                 else -> FilterType.ALL
             }
             applyFiltersAndRender()
@@ -266,6 +277,15 @@ class CollectionActivity : MainNavActivity() {
     private fun applyFiltersAndRender() {
         var list = allCharacters
 
+        // Rodada 15, parte 65 (07/10/2026): os 4 filtros de raridade abaixo só enxergam
+        // personagens JÁ carregados no cache local (allCharacters, que vem do Room via
+        // viewModel.characters) -- a listagem é alimentada aos poucos, por popularidade na
+        // Comic Vine (ver CharacterRepository.fetchBatch()), e popularidade não tem relação
+        // nenhuma com raridade. Então, por exemplo, "Lendário" aqui mostra só os Lendários que
+        // já calharam de entrar numa leva carregada até agora, não TODOS os Lendários que
+        // existem no catálogo -- o filtro ajuda a achar o que já está na tela, mas não resolve
+        // sozinho o catálogo inteiro aparecer de uma vez (isso exigiria mudar como/quando as
+        // levas são buscadas, não só como a lista já carregada é filtrada).
         list = when (currentFilter) {
             FilterType.ALL -> list
             FilterType.UNLOCKED -> list.filter { it.unlocked }
@@ -273,6 +293,10 @@ class CollectionActivity : MainNavActivity() {
             FilterType.HEROES -> list.filter { it.category == CharacterCategory.HEROI }
             FilterType.ANTIHEROES -> list.filter { it.category == CharacterCategory.ANTI_HEROI }
             FilterType.VILLAINS -> list.filter { it.category == CharacterCategory.VILAO }
+            FilterType.RARITY_COMUM -> list.filter { it.rarity == Rarity.COMUM }
+            FilterType.RARITY_RARO -> list.filter { it.rarity == Rarity.RARO }
+            FilterType.RARITY_EPICO -> list.filter { it.rarity == Rarity.EPICO }
+            FilterType.RARITY_LENDARIO -> list.filter { it.rarity == Rarity.LENDARIO }
         }
 
         if (searchQuery.isNotBlank()) {

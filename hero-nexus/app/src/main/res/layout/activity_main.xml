@@ -1,15 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_app_gradient">
 
+    <!-- Rodada 15, partes 66 e 67 (07/10/2026): historico da "bola laranja" virando "fenda de
+         energia" (ver bg_splash_portal_glow.xml) e do ajuste de tamanho pra caber na tela.
+
+         Rodada 15, parte 68 (07/10/2026): pedido do usuário por mais tempo de splash, uma
+         explosão pra fora servindo de transição depois da implosão, e as rachaduras de dentro se
+         mexendo por conta própria, não só o anel inteiro girando junto. O que antes era um
+         ImageView só (imageSplashRift) virou três, imageRiftA/imageRiftB/imageRiftEmbers, cada um
+         com metade das rachaduras/arcos ou só as faíscas (ver os três drawables ic_splash_rift*),
+         empilhados exatamente na mesma posição e tamanho. MainActivity.kt gira cada um numa
+         velocidade e sentido diferente o tempo todo, então a composição dos três já parece viva
+         mesmo antes da implosão/explosão. viewSplashFlash, lá embaixo depois do ProgressBar, é o
+         flash de tela cheia que vende a "explosão": fica transparente até o fim, MainActivity.kt
+         sobe a opacidade dele bem rápido no pico da explosão e desce de novo, bem no instante de
+         trocar pra Coleção/Login, escondendo o corte entre as duas telas. -->
+
+    <ImageView
+        android:id="@+id/textLogo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginEnd="64dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/img_wordmark_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <View
         android:id="@+id/glowLogo"
-        android:layout_width="360dp"
-        android:layout_height="360dp"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
         android:background="@drawable/bg_splash_portal_glow"
         app:layout_constraintBottom_toBottomOf="@id/textLogo"
         app:layout_constraintEnd_toEndOf="@id/textLogo"
@@ -17,31 +47,39 @@
         app:layout_constraintTop_toTopOf="@id/textLogo" />
 
     <ImageView
-        android:id="@+id/textLogo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginEnd="64dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/img_wordmark_logo"
-        app:layout_constraintBottom_toTopOf="@id/textTagline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        android:id="@+id/imageRiftA"
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_splash_rift"
+        app:layout_constraintBottom_toBottomOf="@id/textLogo"
+        app:layout_constraintEnd_toEndOf="@id/textLogo"
+        app:layout_constraintStart_toStartOf="@id/textLogo"
+        app:layout_constraintTop_toTopOf="@id/textLogo" />
 
-    <TextView
-        android:id="@+id/textTagline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/tagline"
-        android:textAppearance="@style/TextAppearance.Heronexus.Body"
-        android:textColor="@color/reward_gold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textLogo" />
+    <ImageView
+        android:id="@+id/imageRiftB"
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_splash_rift_b"
+        app:layout_constraintBottom_toBottomOf="@id/textLogo"
+        app:layout_constraintEnd_toEndOf="@id/textLogo"
+        app:layout_constraintStart_toStartOf="@id/textLogo"
+        app:layout_constraintTop_toTopOf="@id/textLogo" />
+
+    <ImageView
+        android:id="@+id/imageRiftEmbers"
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_splash_rift_embers"
+        app:layout_constraintBottom_toBottomOf="@id/textLogo"
+        app:layout_constraintEnd_toEndOf="@id/textLogo"
+        app:layout_constraintStart_toStartOf="@id/textLogo"
+        app:layout_constraintTop_toTopOf="@id/textLogo" />
+
+
 
     <TextView
         android:id="@+id/textLoading"
@@ -69,5 +107,24 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Rodada 15, parte 68 (07/10/2026): flash de tela cheia pra vender a explosão final como
+         transição (ver comentário no topo deste arquivo). Por ser o último filho, desenha por
+         cima de tudo o resto, inclusive da wordmark/barra. Alpha 0 em repouso, não atrapalha nada
+         enquanto a splash só está girando/carregando.
+
+         Rodada 15, parte 69 (07/10/2026): cor trocada de reward_gold pra text_white (branco).
+         Usuário reportou que ainda dava pra ler "HERO NEXUS" no instante do corte de tela, e um
+         dos motivos era a cor do flash ser EXATAMENTE a mesma da wordmark/rachaduras (reward_gold
+         sobre reward_gold não "lava" nada de verdade, só confunde as bordas). Branco estoura por
+         cima de qualquer cor embaixo, efeito de clarão de verdade. -->
+    <View
+        android:id="@+id/viewSplashFlash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="@color/text_white"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="28dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,12 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 10.1 (01/09): reforca a identidade "Nexus" (o anel-portal que agora vive atras do N
-     na wordmark) tambem como um brilho ambiente bem sutil atras dela na splash, pra a marca nao
-     parecer um elemento isolado: um leve eco do mesmo motivo no fundo da tela toda. -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
-    <gradient
-        android:type="radial"
-        android:gradientRadius="260dp"
-        android:startColor="#33FFC400"
-        android:centerColor="#26E62429"
-        android:endColor="#00000000" />
-</shape>
+<!-- Rodada 10.1 (01/09): reforca a identidade "Nexus" com um brilho ambiente atras da wordmark na
+     splash.
+
+     Rodada 15, parte 66 (07/10/2026): pedido do usuário, descrevendo a versão antiga como "seca"
+     e com "uma bola laranja" em volta da logo. Causa raiz real do "bola": era um ÚNICO oval com
+     gradiente radial cujo endColor batia em 100% transparente logo aos 56% do raio (stop final
+     bem cedo), então o brilho tinha uma queda brusca perto do centro e lia como um disco sólido
+     de borda meio dura, não como luz suave. Trocado por 3 ovais sobrepostos, de tamanhos/posições
+     diferentes (cada um com gradiente radial indo até a própria borda do oval, sem corte
+     antecipado), criando um brilho em camadas, mais suave e assimétrico, propositalmente não
+     mais um círculo perfeito concêntrico. Ver também ic_splash_rift.xml (camada nova, acima
+     desta no layout) para as rachaduras/faíscas que complementam esse brilho.
+
+     Rodada 15, parte 67 (07/10/2026): usuário reportou que o círculo estava estourando a largura
+     da tela na maioria dos aparelhos. Diferente de um vetor, que escala sozinho com o tamanho do
+     ImageView via viewport, um layer-list de shapes usa dp absoluto em cada inset e gradientRadius,
+     então não dava pra só encolher o View em activity_main.xml como foi feito com
+     ic_splash_rift.xml. Todos os valores abaixo foram recalculados do zero, multiplicados pelo
+     mesmo fator (280 sobre 420) da redução do View (420dp para 280dp), pra manter exatamente as
+     mesmas proporções e posições relativas entre os 3 ovais, só que menores. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Oval externo, maior e mais fraco, levemente deslocado pra baixo-esquerda. -->
+    <item
+        android:left="0dp"
+        android:top="7dp"
+        android:right="27dp"
+        android:bottom="20dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="127dp"
+                android:startColor="#47E62429"
+                android:centerColor="#24E62429"
+                android:endColor="#00E62429" />
+        </shape>
+    </item>
+
+    <!-- Oval médio, mais quente/alaranjado, deslocado pra cima-direita. -->
+    <item
+        android:left="67dp"
+        android:top="63dp"
+        android:right="40dp"
+        android:bottom="44dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="87dp"
+                android:startColor="#59FF8A28"
+                android:centerColor="#28FF8A28"
+                android:endColor="#00FF8A28" />
+        </shape>
+    </item>
+
+    <!-- Núcleo pequeno e brilhante, centrado, dourado: o ponto mais claro da composição. -->
+    <item
+        android:left="90dp"
+        android:top="90dp"
+        android:right="90dp"
+        android:bottom="90dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="50dp"
+                android:startColor="#73FFC400"
+                android:centerColor="#30FFC400"
+                android:endColor="#00FFC400" />
+        </shape>
+    </item>
+
+</layer-list>

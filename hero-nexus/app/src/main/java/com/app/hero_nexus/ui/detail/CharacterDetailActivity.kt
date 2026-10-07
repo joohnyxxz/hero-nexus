@@ -13,7 +13,7 @@ import com.app.hero_nexus.data.model.Character
 import com.app.hero_nexus.databinding.ActivityCharacterDetailBinding
 import com.app.hero_nexus.databinding.ItemAttributeRowBinding
 import com.app.hero_nexus.ui.compare.CompareActivity
-import com.app.hero_nexus.util.loadCharacterImage
+import com.app.hero_nexus.util.loadCharacterHeaderImage
 import com.app.hero_nexus.util.visibleIf
 import com.google.android.material.chip.Chip
 
@@ -54,7 +54,7 @@ class CharacterDetailActivity : AppCompatActivity() {
         binding.backBar.textBackBarTitle.text = character.name
         binding.textName.text = character.name
         binding.textRarity.text = character.rarity.name
-        binding.imageCharacter.loadCharacterImage(character.imageUrl)
+        binding.imageCharacter.loadCharacterHeaderImage(character.imageUrl)
         binding.textLevelPower.text = if (character.unlocked) {
             getString(R.string.level_short, character.level) + "  •  Poder geral ${character.stats.overallPower}"
         } else {

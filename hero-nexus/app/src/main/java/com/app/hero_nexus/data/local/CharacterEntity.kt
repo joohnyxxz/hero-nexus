@@ -31,6 +31,11 @@ data class CharacterEntity(
     val durability: Int,
     val power: Int,
     val combat: Int,
+    // Rodada 15, parte 57 (07/10/2026): raridade LENDARIO deixou de ser um limiar fixo de OVR
+    // e virou "os 3 melhores do catálogo inteiro" (pedido do usuário) -- este flag é recalculado
+    // toda vez que o cache muda (ver CharacterRepository.refreshTopRankedFlags()) e é o que
+    // Character.rarity (CharacterMappers.kt) usa pra decidir LENDARIO de verdade.
+    val isTopRanked: Boolean = false,
     val cachedAtMillis: Long
 )
 

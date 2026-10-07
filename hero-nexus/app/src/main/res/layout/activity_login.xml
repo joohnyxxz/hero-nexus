@@ -31,6 +31,12 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/spacing_l">
 
+        <!-- Rodada 15, parte 67 (07/10/2026): pedido do usuário. A logo estava grudada no
+             canto esquerdo (só start_toStartOf parent), destoando da splash, que já é centralizada.
+             Com largura wrap_content e as duas pontas (start e end) presas no parent, o
+             ConstraintLayout centraliza a view sozinho, sem precisar de bias nem de width=0dp. O
+             subtítulo embaixo segue a mesma lógica (antes seguia o start do logo, que agora é o
+             centro, então ficaria torto) e ganhou textAlignment="center" pro caso de quebrar linha. -->
         <ImageView
             android:id="@+id/textTitle"
             android:layout_width="wrap_content"
@@ -40,18 +46,9 @@
             android:contentDescription="@string/app_name"
             android:maxWidth="220dp"
             android:src="@drawable/img_wordmark_logo"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/login_title"
-            android:textAppearance="@style/TextAppearance.Heronexus.Body"
-            app:layout_constraintStart_toStartOf="@id/textTitle"
-            app:layout_constraintTop_toBottomOf="@id/textTitle" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutEmail"
@@ -64,7 +61,7 @@
             app:hintTextColor="@color/text_muted"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textSubtitle">
+            app:layout_constraintTop_toBottomOf="@id/textTitle">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputEmail"

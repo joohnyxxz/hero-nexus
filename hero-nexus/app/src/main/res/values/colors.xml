@@ -30,6 +30,11 @@
     <color name="rarity_epic">#B14BF4</color>
     <color name="rarity_legendary">#FFC400</color>
     <color name="rarity_boss">#E62429</color>
+    <!-- Rodada 15, parte 61 (07/10/2026): cor própria pro card BLOQUEADO, de propósito
+         diferente/mais escura que rarity_common (#8A93A6), senão um personagem Comum
+         bloqueado ficaria com a MESMA cor de moldura de um Comum já revelado, e a raridade
+         "escaparia" antes de desbloquear. -->
+    <color name="rarity_locked">#4B5160</color>
 
     <!-- HUD de batalha -->
     <color name="health_full">#3CCB6E</color>

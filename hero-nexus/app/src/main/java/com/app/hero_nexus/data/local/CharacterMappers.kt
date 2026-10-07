@@ -27,6 +27,7 @@ fun CharacterEntity.toDomain(state: UserCharacterState = UserCharacterState()): 
         category = category,
         isBossCandidate = category == CharacterCategory.VILAO,
         stats = stats,
+        isTopRanked = isTopRanked,
         siteDetailUrl = siteDetailUrl,
         unlocked = state.unlocked,
         level = state.level,
