@@ -147,7 +147,7 @@ class BattleActivity : AppCompatActivity(), BattleListener {
      * (ver FAMOUS_HERO_BLOCKLIST), sorteado aleatoriamente em vez de seguir ordem de poder,
      * senao ia sempre cair num dos principais (Homem-Aranha, Capitao America, Wolverine,
      * Homem de Ferro, Deadpool) que ja sao o elenco fixo/inicial do jogo. */
-    private fun findNextHeroToUnlock(states: Map<Int, UserCharacterState>): Character? {
+    private suspend fun findNextHeroToUnlock(states: Map<Int, UserCharacterState>): Character? {
         val heroes = app.characterRepository.getAllCached()
             .filter {
                 (it.category == CharacterCategory.HEROI.name || it.category == CharacterCategory.ANTI_HEROI.name) &&
@@ -194,7 +194,6 @@ class BattleActivity : AppCompatActivity(), BattleListener {
      * no máximo 2 especial"). */
     private fun updateSpecialHud() {
         val player = engine.player
-        binding.progressSpecialCharge.progress = (player.currentChargeProgress * 100).toInt()
         binding.pipSpecial1.alpha = if (player.storedSpecials >= 1) 1f else 0.28f
         binding.pipSpecial2.alpha = if (player.storedSpecials >= 2) 1f else 0.28f
         binding.buttonSpecial.isEnabled = player.storedSpecials >= 1
@@ -250,13 +249,19 @@ class BattleActivity : AppCompatActivity(), BattleListener {
     }
 
     private fun setupAttackButton() {
-        binding.buttonAttack.setOnTouchListener { _, event ->
+        // setOnTouchListener consome o evento direto -- o View nunca entra sozinho em
+        // state_pressed (isso só acontece via performClick/onTouchEvent padrão), então o
+        // selector do fundo (bg_attack_button) não acendia ao segurar. Setando isPressed na mão
+        // aqui pra o hover realmente aparecer.
+        binding.buttonAttack.setOnTouchListener { view, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    view.isPressed = true
                     binding.battleView.setAttackPressed(true)
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    view.isPressed = false
                     binding.battleView.setAttackPressed(false)
                     true
                 }

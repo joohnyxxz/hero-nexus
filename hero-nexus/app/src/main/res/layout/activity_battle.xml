@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_deep_blue"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <com.app.hero_nexus.ui.battle.BattleView
         android:id="@+id/battleView"
@@ -136,25 +138,28 @@
     </FrameLayout>
 
     <!-- Botão de ataque -->
-    <View
+    <FrameLayout
         android:id="@+id/buttonAttack"
+        android:clickable="true"
         android:layout_width="@dimen/attack_button_size"
         android:layout_height="@dimen/attack_button_size"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/spacing_l"
-        android:background="@drawable/bg_attack_button" />
+        android:background="@drawable/bg_attack_button">
 
-    <ImageView
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="42dp"
-        android:src="@drawable/ic_sword" />
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_fist" />
+
+    </FrameLayout>
 
     <!-- Botão de especial: carrega com o dano causado (barrinha fina embaixo), guarda até 2 usos
          prontos (pips ao lado): seção "especial", feedback 31/08. -->
     <FrameLayout
         android:id="@+id/buttonSpecial"
+        android:clickable="true"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="bottom|end"
@@ -166,19 +171,8 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center"
-            android:layout_marginBottom="8dp"
             android:src="@drawable/ic_special" />
 
-        <ProgressBar
-            android:id="@+id/progressSpecialCharge"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="42dp"
-            android:layout_height="5dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="7dp"
-            android:max="100"
-            android:progressDrawable="@drawable/progress_special_charge"
-            tools:progress="40" />
     </FrameLayout>
 
     <LinearLayout
@@ -209,11 +203,12 @@
          de comer, em vez de curar automaticamente ao quebrar a caixa/barril. -->
     <FrameLayout
         android:id="@+id/buttonFood"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:clickable="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="92dp"
-        android:layout_marginBottom="22dp"
+        android:layout_marginEnd="114dp"
+        android:layout_marginBottom="36dp"
         android:background="@drawable/bg_food_button"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -230,14 +225,13 @@
              comidinhas"). -->
         <TextView
             android:id="@+id/textFoodCount"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_gravity="top|end"
-            android:layout_marginTop="-4dp"
-            android:layout_marginEnd="-4dp"
+            android:layout_marginTop="-6dp"
+            android:layout_marginEnd="-6dp"
             android:background="@drawable/bg_food_count_badge"
             android:gravity="center"
-            android:includeFontPadding="false"
             android:textColor="@color/text_white"
             android:textSize="@dimen/text_size_micro"
             android:textStyle="bold"

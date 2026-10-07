@@ -18,6 +18,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- Estados -->
+    <color name="crate_green">#00A86B</color>
     <color name="success_green">#3CCB6E</color>
     <color name="error_red">#E62429</color>
     <color name="locked_overlay">#B0000000</color>
