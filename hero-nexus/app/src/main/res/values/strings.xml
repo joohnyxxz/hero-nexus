@@ -31,6 +31,15 @@
     <string name="filter_heroes">Heróis</string>
     <string name="filter_antiheroes">Anti-heróis</string>
     <string name="filter_villains">Vilões</string>
+
+    <!-- Rodada 15, parte 65 (07/10/2026): chips de filtro por raridade, pedido do usuário
+         depois do redesign das cartas ("acho que fazer a listagem por partes vai cagar bastante
+         pra ver todos os personagens de cada raridade"). Nomes com acento/maiúscula certa pro
+         chip, diferente de rarity.name cru, tipo "LENDARIO", usado só dentro da própria carta. -->
+    <string name="filter_rarity_comum">Comum</string>
+    <string name="filter_rarity_raro">Raro</string>
+    <string name="filter_rarity_epico">Épico</string>
+    <string name="filter_rarity_lendario">Lendário</string>
     <string name="sort_power_desc">Maior poder</string>
     <string name="sort_power_asc">Menor poder</string>
     <string name="sort_name">Nome</string>

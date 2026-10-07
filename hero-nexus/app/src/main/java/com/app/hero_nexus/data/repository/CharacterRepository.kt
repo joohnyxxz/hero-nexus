@@ -8,7 +8,14 @@ import com.app.hero_nexus.util.CharacterCategorizer
 import com.app.hero_nexus.util.Constants
 import com.app.hero_nexus.util.PowerCalculator
 import com.app.hero_nexus.util.Resource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -37,6 +44,23 @@ class CharacterRepository(
     private var totalResults = Int.MAX_VALUE
     private var exhausted = false
 
+    /** Rodada 15, parte 58 (07/10/2026): correção de bug real achado por Logcat -- MainActivity
+     * (prefetch da splash) e CollectionViewModel.start() chamam ensureFirstBatch() quase ao
+     * mesmo tempo quando o cache está vazio (ex.: logo após a migração do Room pra versão 3,
+     * que zera o cache via fallbackToDestructiveMigration()). Sem essa trava, os DOIS disparavam
+     * sua PRÓPRIA chamada pesada e idêntica à Comic Vine; quando a splash desistia depois de
+     * SPLASH_PREFETCH_TIMEOUT_MS (6s) e cancelava a sua, a tela de Coleção começava OUTRA do
+     * zero -- e foi exatamente essa SEGUNDA chamada concorrente que ficou travada até o teto de
+     * BATCH_LOAD_TIMEOUT_MILLIS (25s) sem resposta nenhuma da Comic Vine, deixando a Coleção
+     * vazia pro usuário (2 logs reais mostram os dois GETs idênticos, um cancelado a ~6s, o
+     * outro a ~25s em ponto). `repositoryScope` é um escopo PRÓPRIO, não ligado a nenhuma
+     * Activity/ViewModel -- assim, quem chamar enquanto já existe uma busca em andamento só
+     * "pega carona" no resultado dela (nunca dispara uma segunda requisição), e a splash
+     * desistindo/cancelando o SEU lado nunca mata o download que já estava a caminho. */
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val firstBatchMutex = Mutex()
+    private var inFlightFirstBatch: Deferred<Resource<Unit>>? = null
+
     /** Ainda vale a pena tentar buscar mais personagens Marvel (scroll/"carregar mais")? */
     val hasMore: Boolean get() = !exhausted
 
@@ -46,6 +70,24 @@ class CharacterRepository(
     suspend fun getCached(id: Int): CharacterEntity? = dao.getById(id)
 
     suspend fun getAllCached(): List<CharacterEntity> = dao.getAllOnce()
+
+    /**
+     * Rodada 15, parte 57 (07/10/2026): correção do recurso "poderes" que o usuário reportou
+     * nunca funcionar. O recurso PLURAL da Comic Vine (`characters/`, usado em fetchBatch() pra
+     * popular o cache inteiro) pede o campo `powers` no field_list, mas raramente devolve algo
+     * nele -- particularidade conhecida da API (o campo só vem preenchido de forma confiável no
+     * recurso SINGULAR, `character/4005-{id}/`). Por isso a tela de detalhe chama isto na hora
+     * de abrir, SÓ quando o cache já veio sem poderes -- uma chamada extra, e só então --, e o
+     * resultado fica salvo no Room (dao.updatePowers) pra não precisar buscar de novo depois.
+     */
+    suspend fun fetchAndCachePowers(id: Int): List<String>? = try {
+        val response = api.getCharacterDetail(id)
+        val powers = response.results?.powers?.mapNotNull { it.name }
+        if (!powers.isNullOrEmpty()) dao.updatePowers(id, powers)
+        powers
+    } catch (e: Exception) {
+        null
+    }
 
     /**
      * Garante que a PRIMEIRA leva ([Constants.INITIAL_PAGE_TARGET] personagens Marvel) esteja
@@ -59,7 +101,21 @@ class CharacterRepository(
         // Rodada 15, parte 30: se tivermos menos que a meta inicial, buscamos mais mesmo que o 
         // cache não esteja expirado, para evitar que a lista fique "pobre" (ex: só 5 cards).
         if (count >= Constants.INITIAL_PAGE_TARGET && !isStale) return Resource.Success(Unit)
-        return fetchBatch(target = Constants.INITIAL_PAGE_TARGET, replace = count == 0 || isStale)
+
+        // Coalescimento (ver comentário em repositoryScope acima): se já existe uma busca da
+        // primeira leva em andamento, todo mundo que chamar ensureFirstBatch() nesse meio tempo
+        // espera o MESMO resultado em vez de disparar outra chamada de rede idêntica.
+        val replace = count == 0 || isStale
+        val deferred = firstBatchMutex.withLock {
+            inFlightFirstBatch?.takeIf { it.isActive } ?: repositoryScope.async {
+                try {
+                    fetchBatch(target = Constants.INITIAL_PAGE_TARGET, replace = replace)
+                } finally {
+                    firstBatchMutex.withLock { inFlightFirstBatch = null }
+                }
+            }.also { inFlightFirstBatch = it }
+        }
+        return deferred.await()
     }
 
     /**
@@ -214,7 +270,9 @@ class CharacterRepository(
                 .filter { !it.name.isNullOrBlank() }
                 .map { it.toEntity() }
 
-            if (entities.isNotEmpty()) dao.insertAll(entities)
+            if (entities.isNotEmpty()) {
+                dao.insertAll(entities)
+            }
             Resource.Success(entities.size)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Falha ao buscar na Comic Vine", e)
@@ -224,7 +282,7 @@ class CharacterRepository(
     private fun CharacterDto.toEntity(): CharacterEntity {
         val appearances = countOfIssueAppearances ?: 0
         val category = CharacterCategorizer.categorize(name ?: "")
-        val stats = PowerCalculator.calculateStats(id, appearances)
+        val stats = PowerCalculator.calculateStats(id, appearances, category, deck, description)
         return CharacterEntity(
             comicVineId = id,
             name = name ?: "Desconhecido",
@@ -243,7 +301,13 @@ class CharacterRepository(
             durability = stats.durability,
             power = stats.power,
             combat = stats.combat,
+            isTopRanked = false,
             cachedAtMillis = System.currentTimeMillis()
         )
     }
+
+    // Rodada 15, parte 58 (07/10/2026): removido o recálculo de "top 3" (refreshTopRankedFlags)
+    // que rodava aqui a cada leva -- a raridade LENDARIO voltou a ser limiar fixo de OVR (ver
+    // Character.rarity / Rarity.fromPower), então essa passada extra pelo cache inteiro + write
+    // no Room a cada fetchBatch()/searchRemote() não serve mais pra nada, só consumia tempo.
 }

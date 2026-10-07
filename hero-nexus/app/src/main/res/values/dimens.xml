@@ -8,7 +8,16 @@
 
     <dimen name="card_corner_radius">12dp</dimen>
     <dimen name="card_width">150dp</dimen>
-    <dimen name="card_image_height">130dp</dimen>
+    <!-- Rodada 15, parte 61 (07/10/2026): 130dp para 178dp, pedido do usuário ("muito
+         quadrado, queria que fosse mais uma cartinha de RPG"). Card de jogo de cartas de
+         verdade é retrato alto, não quase quadrado; aumentar só a altura da ILUSTRAÇÃO (o
+         resto do card, cabeçalho, chip de poder, barra de XP, continua do mesmo jeito por
+         baixo) já muda a proporção geral do card de ~150:190 (quase 4:5) pra ~150:238 (quase
+         2:3, proporção clássica de carta). -->
+    <dimen name="card_image_height">178dp</dimen>
+    <dimen name="card_rarity_gem_size">24dp</dimen>
+    <dimen name="card_stroke_width_normal">2.5dp</dimen>
+    <dimen name="card_stroke_width_legendary">4dp</dimen>
 
     <dimen name="hud_bar_height">10dp</dimen>
     <dimen name="joystick_size">120dp</dimen>

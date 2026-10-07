@@ -16,6 +16,20 @@ fun ImageView.loadCharacterImage(url: String?) {
         .into(this)
 }
 
+/** Rodada 15, parte 57 (07/10/2026): igual a [loadCharacterImage], só que com
+ * [TopCropTransformation] em vez de centerCrop -- usada só no cabeçalho grande da tela de
+ * detalhe, onde centerCrop cortava a cabeça do personagem (ver comentário da transformação). Os
+ * cards pequenos da coleção/time continuam em centerCrop normal -- lá a proporção do container
+ * já é mais próxima da imagem, então não tem o mesmo problema. */
+fun ImageView.loadCharacterHeaderImage(url: String?) {
+    Glide.with(this)
+        .load(url)
+        .placeholder(R.drawable.ic_character_placeholder)
+        .error(R.drawable.ic_character_placeholder)
+        .transform(TopCropTransformation())
+        .into(this)
+}
+
 /** Remove tags HTML que a Comic Vine costuma retornar em "description"/"deck". */
 fun String?.stripHtml(): String {
     if (this.isNullOrBlank()) return ""

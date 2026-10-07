@@ -2,6 +2,7 @@ package com.app.hero_nexus.data.remote
 
 import com.app.hero_nexus.BuildConfig
 import com.app.hero_nexus.util.Constants
+import okhttp3.Dns
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -9,6 +10,8 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.Inet4Address
+import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
 /**
@@ -24,10 +27,31 @@ private class UserAgentInterceptor : Interceptor {
     }
 }
 
+/**
+ * Rodada 15, parte 58 (07/10/2026): bug real de verdade, confirmado por teste -- a MESMA URL
+ * (com os MESMOS parametros, copiada direto do Logcat) devolvia JSON valido e instantaneo num
+ * navegador comum, mas dentro do app, rodando no emulador, a chamada ficava presa ate o teto de
+ * tempo (nem o connectTimeout nem o readTimeout do OkHttp abaixo chegavam a disparar -- o
+ * cancelamento sempre vinha do timeout do PROPRIO coroutine, nunca de uma excecao do OkHttp).
+ * Isso e a assinatura classica de um problema conhecido do emulador Android: a rede virtual dele
+ * tem suporte a IPv6 quebrado -- o DNS do sistema devolve um endereco IPv6 "valido", o emulador
+ * tenta se conectar por ele, e o pacote simplesmente nunca chega a lugar nenhum (sem RST, sem
+ * erro, sem nada), entao nem o fallback automatico pra IPv4 (Happy Eyeballs) nem os timeouts
+ * configurados abaixo tem chance de agir a tempo. Forcar IPv4 aqui elimina esse caminho quebrado.
+ */
+private object Ipv4OnlyDns : Dns {
+    override fun lookup(hostname: String): List<InetAddress> {
+        val all = Dns.SYSTEM.lookup(hostname)
+        val ipv4Only = all.filterIsInstance<Inet4Address>()
+        return ipv4Only.ifEmpty { all }
+    }
+}
+
 object NetworkModule {
 
     private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
+            .dns(Ipv4OnlyDns)
             .addInterceptor(UserAgentInterceptor())
             .apply {
                 if (BuildConfig.DEBUG) {
@@ -61,6 +85,7 @@ object NetworkModule {
     // da Comic Vine pra um serviço diferente.
     private val translationHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
+            .dns(Ipv4OnlyDns)
             .apply {
                 if (BuildConfig.DEBUG) {
                     addInterceptor(HttpLoggingInterceptor().apply {

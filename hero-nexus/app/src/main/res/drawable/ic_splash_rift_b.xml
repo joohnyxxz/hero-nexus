@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rodada 15, parte 68 (07/10/2026): grupo B, rachaduras 2 e 4 mais os 2 arcos quebrados. Ver
+     comentário completo em ic_splash_rift.xml (grupo A). Gira em MainActivity.kt numa velocidade
+     e sentido diferentes do grupo A, de propósito, pra não ficarem sincronizados, o que voltaria
+     a parecer um disco rígido só, igual antes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="480dp"
+    android:height="480dp"
+    android:viewportWidth="480"
+    android:viewportHeight="480">
+
+    <path
+        android:pathData="M375.0,196.0 L388.1,178.0 L414.2,200.0 L424.2,172.6 L443.5,173.7 M316.0,359.9 L335.7,372.3 L326.7,402.9 L354.9,409.9 L361.0,430.9 M35.1,140.1 A228,228 0 0 1 192.6,17.0 M455.4,293.7 A222,222 0 0 1 337.3,439.5"
+        android:strokeColor="@color/reward_gold"
+        android:strokeWidth="8"
+        android:strokeAlpha="0.18"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <path
+        android:pathData="M375.0,196.0 L388.1,178.0 L414.2,200.0 L424.2,172.6 L443.5,173.7 M316.0,359.9 L335.7,372.3 L326.7,402.9 L354.9,409.9 L361.0,430.9 M35.1,140.1 A228,228 0 0 1 192.6,17.0 M455.4,293.7 A222,222 0 0 1 337.3,439.5"
+        android:strokeColor="@color/reward_gold"
+        android:strokeWidth="2.0"
+        android:strokeAlpha="0.85"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+</vector>

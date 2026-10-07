@@ -55,14 +55,38 @@ class CharacterDetailViewModel(
             _aboutText.value = rawAbout.ifBlank { "Sem informações adicionais disponíveis." }
             _powers.value = domain.powers
 
+            // Rodada 15, parte 59 (07/10/2026): correção de lentidão nova, reportada pelo
+            // usuário depois da parte 57 -- a tradução do "sobre" e a busca+tradução dos
+            // poderes rodavam em SEQUÊNCIA, uma esperando a outra terminar dentro do MESMO
+            // coroutine (até 3 chamadas de rede em fila: traduzir "sobre", buscar poderes,
+            // traduzir poderes). Lançando cada etapa em seu PRÓPRIO coroutine elas saem ao
+            // mesmo tempo -- a tela de detalhe volta a ficar com a velocidade de antes.
             if (rawAbout.isNotBlank()) {
-                val translated = runCatching { translationRepository.translate(rawAbout) }.getOrDefault(rawAbout)
-                _aboutText.value = translated
+                launch {
+                    val translated = runCatching { translationRepository.translate(rawAbout) }.getOrDefault(rawAbout)
+                    _aboutText.value = translated
+                }
             }
-            if (domain.powers.isNotEmpty()) {
-                val translatedPowers = runCatching { translationRepository.translateList(domain.powers) }
-                    .getOrDefault(domain.powers)
-                _powers.value = translatedPowers
+
+            launch {
+                // Rodada 15, parte 57 (07/10/2026): o cache (recurso PLURAL da Comic Vine)
+                // raramente vem com `powers` preenchido -- era por isso que "poderes" nunca
+                // aparecia na tela, mesmo o app tendo a seção pronta. Quando chega vazio aqui,
+                // busca de novo só esse campo no recurso SINGULAR (fetchAndCachePowers) antes
+                // de desistir e mostrar "Nenhum poder registrado".
+                var powersToShow = domain.powers
+                if (powersToShow.isEmpty()) {
+                    val fetched = runCatching { characterRepository.fetchAndCachePowers(characterId) }.getOrNull()
+                    if (!fetched.isNullOrEmpty()) {
+                        powersToShow = fetched
+                        _powers.value = powersToShow
+                    }
+                }
+                if (powersToShow.isNotEmpty()) {
+                    val translatedPowers = runCatching { translationRepository.translateList(powersToShow) }
+                        .getOrDefault(powersToShow)
+                    _powers.value = translatedPowers
+                }
             }
         }
     }

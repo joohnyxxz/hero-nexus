@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rodada 15, parte 63 (07/10/2026): icone proprio pro chip de Poder Geral (OVR) do card,
+     separado da estrela usada no selo de raridade (imageRarityGem): os dois ficando lado a
+     lado na mesma carta, com a MESMA forma, só cor/posição diferentes, confundia "selo de
+     raridade" com "número de poder". 3 barras em ordem crescente é o ícone clássico de
+     "nível/medidor de força" (tipo barra de sinal), sem reutilizar nenhum símbolo já usado em
+     outra tela (espada = combate específico, estrela = raridade, raio/fogo = botões de batalha). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M3,14 h4 v7 h-4 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M10,9 h4 v12 h-4 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M17,3 h4 v18 h-4 Z" />
+</vector>

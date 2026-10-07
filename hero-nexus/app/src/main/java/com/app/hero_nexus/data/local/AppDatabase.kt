@@ -9,7 +9,9 @@ import com.app.hero_nexus.util.Constants
 
 @Database(
     entities = [CharacterEntity::class, TranslationEntity::class],
-    version = 2,
+    // Rodada 15, parte 57 (07/10/2026): 2 -> 3, coluna nova isTopRanked em CharacterEntity.
+    // fallbackToDestructiveMigration() abaixo cobre isso (é só cache, repopulado da API).
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(StringListConverter::class)
