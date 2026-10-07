@@ -147,9 +147,12 @@ class BattleView @JvmOverloads constructor(
 
     /** Rodada 15, parte 32 (02/10/2026): 8 cenas novas somadas às 4 ruas originais (mesmos 2
      * packs CraftPix citados em BattleEngine.SCENERY_VARIANT_COUNT) -- índices 4-7 são o pack
-     * "Pixel Art Battlegrounds" (ruínas/salão do trono com dragão/selva/cripta), 8-11 são o pack
-     * "Postapocalypse Backgrounds". Mesma mecânica de sempre (uma imagem ÚNICA e fixa por
-     * variante, nunca duas camadas) -- só a lista de recursos cresceu. */
+     * "Pixel Art Battlegrounds" (ruínas/salão do trono com dragão/selva/cripta), 8-10 são o pack
+     * "Postapocalypse Backgrounds" (Apoc1/Apoc2/Apoc4). Mesma mecânica de sempre (uma imagem
+     * ÚNICA e fixa por variante, nunca duas camadas) -- só a lista de recursos cresceu.
+     * Rodada 15, parte 56 (07/10/2026): Apoc3 (parque de diversões abandonado) removido da
+     * rotação a pedido do usuário -- índice 10 agora é Apoc4 (era 11). O arquivo
+     * img_battle_scenery_apoc3.png continua no disco, só órfão. */
     private fun ensureSceneryLoaded(variant: Int) {
         if (loadedVariant == variant) return
         loadedVariant = variant
@@ -163,8 +166,7 @@ class BattleView @JvmOverloads constructor(
             7 -> R.drawable.img_battle_scenery_crypt4
             8 -> R.drawable.img_battle_scenery_apoc1
             9 -> R.drawable.img_battle_scenery_apoc2
-            10 -> R.drawable.img_battle_scenery_apoc3
-            11 -> R.drawable.img_battle_scenery_apoc4
+            10 -> R.drawable.img_battle_scenery_apoc4
             else -> R.drawable.img_battle_scenery_city1
         }
         backgroundBitmap = runCatching { BitmapFactory.decodeResource(resources, res) }.getOrNull()

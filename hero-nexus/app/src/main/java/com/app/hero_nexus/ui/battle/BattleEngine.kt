@@ -510,9 +510,9 @@ class BattleEngine(
             .take(2)
         targets.forEach { enemy ->
             enemy.takeDamage(player.attackDamage, nowMs)
-            // Barrinha de especial carrega conforme o dano causado (feedback 31/08: "um botão de
-            // especial, que tem que ter uma barrinha que carrega conforme o dano").
-            player.addSpecialCharge(player.attackDamage * SPECIAL_CHARGE_PER_DAMAGE)
+            // Especial travado em 2 usos por personagem, sem recarga em combate: o jogador já
+            // começa a batalha com as 2 cargas prontas (ver PlayerFighter.specialCharge) e elas
+            // só diminuem ao usar -- não enchem de novo batendo em inimigos.
             if (!enemy.isAlive) onEnemyDefeated(enemy)
         }
 
@@ -956,9 +956,14 @@ class BattleEngine(
         // usuário baixou e conectou ("Pixel Art Battlegrounds" -- ruínas/salão do trono com
         // dragão/selva/cripta -- e "Postapocalypse Backgrounds" -- 4 cenas pós-apocalípticas).
         // Índices 0-3 continuam sendo as 4 ruas (City1-4); 4-7 são Battleground1-4
-        // (ruins/throne/jungle/crypt); 8-11 são Postapocalypse1-4 -- ver comentário em
+        // (ruins/throne/jungle/crypt); 8-10 são Apoc1/Apoc2/Apoc4 -- ver comentário em
         // BattleView.ensureSceneryLoaded() pro mapeamento de recurso de cada índice.
-        const val SCENERY_VARIANT_COUNT = 12
+        // Rodada 15, parte 56 (07/10/2026): Apoc3 (parque de diversões abandonado -- roda-gigante
+        // quebrada, cabeça de palhaço, correntes penduradas) removido da rotação a pedido
+        // explícito do usuário. Arquivo img_battle_scenery_apoc3.png continua no disco, só órfão,
+        // igual já foi feito com outros sprites tirados de rotação (ver remoção da lojinha logo
+        // abaixo). 12 -> 11 variantes; Apoc4 (antigo índice 11) virou 10.
+        const val SCENERY_VARIANT_COUNT = 11
 
         // Rodada 15, parte 19 (30/09/2026): faixa da calçada por variante de cenário (fração
         // da altura da arena), medida direto nas 4 imagens reais do pack CraftPix (amostragem de
@@ -978,12 +983,7 @@ class BattleEngine(
         private val FLOOR_TOP_RATIOS = floatArrayOf(
             0.80f, 0.82f, 0.80f, 0.84f, // 0-3: City1-4
             0.42f, 0.50f, 0.60f, 0.46f, // 4-7: Ruins1, Throne2, Jungle3, Crypt4
-            // Rodada 15, parte 52 (04/10/2026): Apoc3 (o parque de diversoes abandonado --
-            // roda-gigante quebrada, cabeca de palhaco, correntes penduradas) ajustado de 0.63
-            // pra 0.60 -- reinspecao com overlay de grade mostrou que o espaco pra andar estava
-            // curto demais (pedido explicito do usuario). 0.60 ainda fica dentro da duna de
-            // areia (acima da faixa de arvores mortas/rochas), so com mais folga vertical.
-            0.72f, 0.81f, 0.60f, 0.78f  // 8-11: Apoc1, Apoc2, Apoc3, Apoc4
+            0.72f, 0.81f, 0.78f  // 8-10: Apoc1, Apoc2, Apoc4 (Apoc3 removido, parte 56)
         )
         // Rodada 15, parte 33 (03/10/2026): Throne2 ajustado de 0.48 pra 0.50 -- reinspeção de
         // perto (grid sobreposto na imagem, zoom na metade de baixo) mostrou que 0.48 ainda
@@ -1009,7 +1009,7 @@ class BattleEngine(
         private val FLOOR_BOTTOM_RATIOS = floatArrayOf(
             0.97f, 0.97f, 0.97f, 0.97f, // 0-3: City1-4 (rua/calçada seguem até o fim da imagem)
             0.96f, 0.97f, 0.97f, 0.97f, // 4-7: Ruins1 (grama), Throne2 (ladrilho+tapete), Jungle3 (terra), Crypt4 (pedra rachada)
-            0.97f, 0.97f, 0.97f, 0.97f  // 8-11: Apoc1-4 (terra rachada/areia, sem quebra até o fim)
+            0.97f, 0.97f, 0.97f  // 8-10: Apoc1, Apoc2, Apoc4 (terra rachada/areia, sem quebra até o fim)
         )
         private const val PLAYER_MARGIN_X = 40f
         private const val PLAYER_VISUAL_RADIUS = 32f

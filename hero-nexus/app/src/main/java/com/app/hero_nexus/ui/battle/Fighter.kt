@@ -73,7 +73,7 @@ class PlayerFighter(
     // que carrega conforme o dano"); guarda no máximo 2 usos prontos ("no máximo 2 especial acho"
     // -- o usuário deixou livre entre o estilo Golden Axe/Streets of Rage, decidido aqui como um
     // híbrido: carrega com dano, mas guarda até 2 cargas em vez de gastar assim que enche).
-    var specialCharge: Float = 0f
+    var specialCharge: Float = 2f
         private set
 
     fun addSpecialCharge(amount: Float) {
