@@ -1,6 +1,5 @@
 package com.app.hero_nexus.data.model
 
-/** Resumo de uma batalha (seção 23 - tela de resultado). */
 data class BattleResult(
     val victory: Boolean,
     val enemiesDefeated: Int,
@@ -9,5 +8,7 @@ data class BattleResult(
     val bossCharacterId: Int? = null,
     val xpGained: Int,
     val coinsGained: Int,
-    val chestAwarded: ChestType? = null
+    val chestAwarded: ChestType? = null,
+
+    val bonusCharacterDrops: Int = 0
 )

@@ -106,5 +106,7 @@ class TeamSelectionActivity : MainNavActivity() {
         }
         app.userRepository.currentUid?.let { viewModel.save(it) }
         startActivity(BattleActivity.newIntent(this, ids.toIntArray()))
+
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 }

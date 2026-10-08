@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_deep_blue"
+    android:background="@drawable/bg_app_gradient"
     android:padding="@dimen/spacing_l">
 
     <TextView
@@ -12,10 +12,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:fontFamily="sans-serif-black"
-        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.Heronexus.Display"
         android:textColor="@color/reward_gold"
-        android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -45,7 +43,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_s"
-                android:textSize="15sp"
                 tools:text="Inimigos derrotados: 24" />
 
             <TextView
@@ -54,7 +51,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_s"
-                android:textSize="15sp"
                 android:visibility="gone"
                 tools:text="Chefe derrotado: Duende Verde"
                 tools:visibility="visible" />
@@ -63,9 +59,9 @@
                 android:id="@+id/textXpGained"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/TextAppearance.Heronexus.Body"
                 android:layout_marginBottom="@dimen/spacing_s"
                 android:textColor="@color/xp_bar"
-                android:textSize="15sp"
                 android:textStyle="bold"
                 tools:text="XP ganho: +750" />
 
@@ -73,8 +69,8 @@
                 android:id="@+id/textCoinsGained"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/TextAppearance.Heronexus.Body"
                 android:textColor="@color/reward_gold"
-                android:textSize="15sp"
                 android:textStyle="bold"
                 tools:text="Moedas: +420" />
 
@@ -82,8 +78,8 @@
                 android:id="@+id/textChestAwarded"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/TextAppearance.Heronexus.Body"
                 android:layout_marginTop="@dimen/spacing_s"
-                android:textColor="@color/text_muted"
                 android:visibility="gone"
                 tools:text="Recompensa: Baú de Herói"
                 tools:visibility="visible" />

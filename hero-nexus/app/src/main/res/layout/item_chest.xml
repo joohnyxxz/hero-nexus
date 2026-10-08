@@ -25,16 +25,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_s"
+            android:textAppearance="@style/TextAppearance.Heronexus.Subtitle"
             android:textColor="@color/text_white"
-            android:textStyle="bold"
             tools:text="Baú de Herói" />
 
         <TextView
             android:id="@+id/textChestCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_muted"
-            android:textSize="12sp"
+            android:textAppearance="@style/TextAppearance.Heronexus.Label"
             tools:text="x 2" />
 
         <Button
@@ -43,8 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginTop="@dimen/spacing_s"
-            android:text="@string/chest_open"
-            android:textSize="13sp" />
+            android:text="@string/chest_open" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

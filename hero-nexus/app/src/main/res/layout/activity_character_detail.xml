@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_deep_blue">
+    android:background="@drawable/bg_app_gradient">
 
     <include
         android:id="@+id/backBar"
@@ -14,6 +14,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
+        android:id="@+id/scrollContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,7 +30,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="260dp">
+                android:layout_height="340dp">
 
                 <ImageView
                     android:id="@+id/imageCharacter"
@@ -54,24 +55,24 @@
                         android:id="@+id/textRarity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Heronexus.Label"
                         android:textColor="@color/reward_gold"
-                        android:textSize="12sp"
                         android:textStyle="bold"
-                        tools:text="★ RARO" />
+                        tools:text="RARO" />
 
                     <TextView
                         android:id="@+id/textName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Heronexus.Title"
                         android:textColor="@color/text_white"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
                         tools:text="Homem-Aranha" />
 
                     <TextView
                         android:id="@+id/textLevelPower"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Heronexus.Label"
                         android:textColor="@color/text_muted"
                         tools:text="Nível 7  •  Poder geral 82" />
                 </LinearLayout>
@@ -92,6 +93,7 @@
                     android:background="@color/card_dark"
                     android:padding="@dimen/spacing_m"
                     android:text="@string/unlock_locked_hint"
+                    android:textAppearance="@style/TextAppearance.Heronexus.Body"
                     android:textColor="@color/reward_gold"
                     android:visibility="gone"
                     tools:visibility="visible" />
@@ -107,8 +109,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_m"
                     android:text="@string/powers_title"
-                    android:textAppearance="@style/TextAppearance.Heronexus.Title"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.Heronexus.Subtitle" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupPowers"
@@ -121,8 +122,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_m"
                     android:text="@string/about_title"
-                    android:textAppearance="@style/TextAppearance.Heronexus.Title"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.Heronexus.Subtitle" />
 
                 <TextView
                     android:id="@+id/textDescription"
@@ -147,11 +147,31 @@
                     android:layout_marginTop="@dimen/spacing_l"
                     android:gravity="center"
                     android:text="@string/api_credit"
-                    android:textColor="@color/text_muted"
-                    android:textSize="10sp" />
+                    android:textAppearance="@style/TextAppearance.Heronexus.Micro" />
+
+                <TextView
+                    android:id="@+id/textNoSpecificSprite"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_s"
+                    android:gravity="center"
+                    android:text="@string/no_specific_sprite_hint"
+                    android:textAppearance="@style/TextAppearance.Heronexus.Micro"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressLoading"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:indeterminateTint="@color/reward_gold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

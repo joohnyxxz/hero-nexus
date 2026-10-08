@@ -2,10 +2,12 @@ package com.app.hero_nexus.data.remote
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * Envelope padrão de todas as respostas da Comic Vine API.
- * https://comicvine.gamespot.com/api/documentation
- */
+data class ComicVineDetailResponseDto(
+    @SerializedName("status_code") val statusCode: Int,
+    @SerializedName("error") val error: String,
+    @SerializedName("results") val results: CharacterDto?
+)
+
 data class ComicVineListResponseDto(
     @SerializedName("status_code") val statusCode: Int,
     @SerializedName("error") val error: String,

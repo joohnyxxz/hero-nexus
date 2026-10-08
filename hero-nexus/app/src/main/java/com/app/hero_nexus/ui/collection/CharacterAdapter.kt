@@ -2,10 +2,11 @@ package com.app.hero_nexus.ui.collection
 
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import com.google.android.material.card.MaterialCardView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.widget.ImageViewCompat
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -34,26 +35,54 @@ class CharacterAdapter(
             binding.imageCharacter.loadCharacterImage(character.imageUrl)
             binding.imageLock.visibleIf(!character.unlocked)
             binding.textLevel.visibleIf(character.unlocked)
-            binding.progressXp.visibleIf(character.unlocked)
+
+            binding.progressXp.visibility = if (character.unlocked) android.view.View.VISIBLE else android.view.View.INVISIBLE
+
+            binding.iconPower.visibility = if (character.unlocked) android.view.View.VISIBLE else android.view.View.INVISIBLE
+            binding.viewLockedScrim.visibleIf(!character.unlocked)
 
             if (character.unlocked) {
                 binding.imageCharacter.colorFilter = null
                 binding.textLevel.text = ctx.getString(R.string.level_short, character.level)
-                binding.textPower.text = "⚔ ${character.stats.overallPower}"
+                binding.textPower.text = character.stats.overallPower.toString()
+                binding.textPower.setTextColor(ContextCompat.getColor(ctx, R.color.reward_gold))
                 binding.progressXp.progress = (character.xp % 1000) / 10
             } else {
                 val grayscale = ColorMatrix().apply { setSaturation(0f) }
                 binding.imageCharacter.colorFilter = ColorMatrixColorFilter(grayscale)
                 binding.textPower.text = ctx.getString(R.string.locked_hint)
+                binding.textPower.setTextColor(ContextCompat.getColor(ctx, R.color.text_muted))
             }
 
-            binding.textRarity.text = character.rarity.name
-            val rarityColor = ContextCompat.getColor(ctx, rarityColorRes(character.rarity))
-            binding.textRarity.setTextColor(rarityColor)
-            ImageViewCompat.setImageTintList(
-                binding.layoutRarity.getChildAt(0) as android.widget.ImageView,
-                android.content.res.ColorStateList.valueOf(rarityColor)
+            binding.textRarity.text = if (character.unlocked) character.rarity.name else "???"
+
+            val trueRarityColor = ContextCompat.getColor(ctx, rarityColorRes(character.rarity))
+            val rarityColor = if (character.unlocked) {
+                trueRarityColor
+            } else {
+                ColorUtils.blendARGB(
+                    ContextCompat.getColor(ctx, R.color.rarity_locked),
+                    trueRarityColor,
+                    LOCKED_RARITY_HINT_RATIO
+                )
+            }
+
+            binding.headerBar.backgroundTintList = android.content.res.ColorStateList.valueOf(rarityColor)
+
+            val card = binding.root as MaterialCardView
+            card.strokeColor = rarityColor
+
+            card.strokeWidth = ctx.resources.getDimensionPixelSize(
+                if (character.unlocked && character.rarity == Rarity.LENDARIO) {
+                    R.dimen.card_stroke_width_legendary
+                } else {
+                    R.dimen.card_stroke_width_normal
+                }
             )
+
+            binding.dividerStats.setBackgroundColor(rarityColor)
+
+            binding.imageRarityGem.backgroundTintList = android.content.res.ColorStateList.valueOf(rarityColor)
 
             binding.root.setOnClickListener { onClick(character) }
         }
@@ -67,6 +96,9 @@ class CharacterAdapter(
     }
 
     companion object {
+
+        private const val LOCKED_RARITY_HINT_RATIO = 0.32f
+
         private val DIFF = object : DiffUtil.ItemCallback<Character>() {
             override fun areItemsTheSame(oldItem: Character, newItem: Character) = oldItem.id == newItem.id
             override fun areContentsTheSame(oldItem: Character, newItem: Character) = oldItem == newItem

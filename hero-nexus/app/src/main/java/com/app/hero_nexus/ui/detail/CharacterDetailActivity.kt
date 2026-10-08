@@ -12,9 +12,10 @@ import com.app.hero_nexus.data.model.BattleStats
 import com.app.hero_nexus.data.model.Character
 import com.app.hero_nexus.databinding.ActivityCharacterDetailBinding
 import com.app.hero_nexus.databinding.ItemAttributeRowBinding
+import com.app.hero_nexus.ui.battle.BattleView
 import com.app.hero_nexus.ui.compare.CompareActivity
-import com.app.hero_nexus.util.loadCharacterImage
-import com.app.hero_nexus.util.stripHtml
+import com.app.hero_nexus.util.applyStatusBarTopInset
+import com.app.hero_nexus.util.loadCharacterHeaderImage
 import com.app.hero_nexus.util.visibleIf
 import com.google.android.material.chip.Chip
 
@@ -26,7 +27,9 @@ class CharacterDetailActivity : AppCompatActivity() {
 
     private val viewModel: CharacterDetailViewModel by viewModels {
         viewModelFactory {
-            initializer { CharacterDetailViewModel(app.characterRepository, app.userRepository) }
+            initializer {
+                CharacterDetailViewModel(app.characterRepository, app.userRepository, app.translationRepository)
+            }
         }
     }
 
@@ -35,20 +38,31 @@ class CharacterDetailActivity : AppCompatActivity() {
         binding = ActivityCharacterDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.backBar.root.applyStatusBarTopInset()
         binding.backBar.buttonBack.setOnClickListener { finish() }
 
         val characterId = intent.getIntExtra(EXTRA_CHARACTER_ID, -1)
+
+        binding.progressLoading.visibleIf(true)
+        binding.scrollContent.visibleIf(false)
         viewModel.character.observe(this) { character ->
-            if (character != null) render(character)
+            if (character != null) {
+                render(character)
+                binding.progressLoading.visibleIf(false)
+                binding.scrollContent.visibleIf(true)
+            }
         }
+
+        viewModel.aboutText.observe(this) { binding.textDescription.text = it }
+        viewModel.powers.observe(this) { renderPowers(it) }
         viewModel.load(characterId, app.userRepository.currentUid)
     }
 
     private fun render(character: Character) {
         binding.backBar.textBackBarTitle.text = character.name
         binding.textName.text = character.name
-        binding.textRarity.text = "★ ${character.rarity.name}"
-        binding.imageCharacter.loadCharacterImage(character.imageUrl)
+        binding.textRarity.text = character.rarity.name
+        binding.imageCharacter.loadCharacterHeaderImage(character.imageUrl)
         binding.textLevelPower.text = if (character.unlocked) {
             getString(R.string.level_short, character.level) + "  •  Poder geral ${character.stats.overallPower}"
         } else {
@@ -57,22 +71,23 @@ class CharacterDetailActivity : AppCompatActivity() {
 
         binding.textLockedHint.visibleIf(!character.unlocked)
 
+        binding.textNoSpecificSprite.visibleIf(!BattleView.hasSpecificSprite(character.name))
+
         renderAttributes(character.stats)
-
-        binding.chipGroupPowers.removeAllViews()
-        if (character.powers.isEmpty()) {
-            binding.chipGroupPowers.addView(makeChip("—"))
-        } else {
-            character.powers.forEach { binding.chipGroupPowers.addView(makeChip(it)) }
-        }
-
-        binding.textDescription.text = (character.description ?: character.deck).stripHtml()
-            .ifBlank { "Sem informações adicionais disponíveis." }
 
         binding.buttonCompare.setOnClickListener {
             startActivity(
                 CompareActivity.newIntent(this, character.id)
             )
+        }
+    }
+
+    private fun renderPowers(powers: List<String>) {
+        binding.chipGroupPowers.removeAllViews()
+        if (powers.isEmpty()) {
+            binding.chipGroupPowers.addView(makeChip(getString(R.string.no_powers_listed)))
+        } else {
+            powers.forEach { binding.chipGroupPowers.addView(makeChip(it)) }
         }
     }
 

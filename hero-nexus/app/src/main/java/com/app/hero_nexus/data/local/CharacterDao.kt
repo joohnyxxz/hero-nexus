@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CharacterDao {
 
-    @Query("SELECT * FROM characters ORDER BY power DESC")
+    @Query("SELECT * FROM characters ORDER BY (strength + speed + intelligence + durability + power + combat) DESC")
     fun observeAll(): Flow<List<CharacterEntity>>
 
     @Query("SELECT * FROM characters WHERE comicVineId = :id LIMIT 1")
@@ -31,11 +31,12 @@ interface CharacterDao {
     @Query("DELETE FROM characters")
     suspend fun clear()
 
-    /**
-     * Substitui o cache inteiro de uma vez só (limpa + insere), numa transação — necessário pro
-     * refresh sempre refletir exatamente o que a API/filtro devolveram agora, sem sobrar lixo de
-     * uma busca anterior (ex: personagem de outro universo que não deveria mais estar aqui).
-     */
+    @Query("UPDATE characters SET powers = :powers WHERE comicVineId = :id")
+    suspend fun updatePowers(id: Int, powers: List<String>)
+
+    @Query("UPDATE characters SET isTopRanked = (comicVineId IN (:topIds))")
+    suspend fun setTopRanked(topIds: List<Int>)
+
     @Transaction
     suspend fun replaceAll(characters: List<CharacterEntity>) {
         clear()

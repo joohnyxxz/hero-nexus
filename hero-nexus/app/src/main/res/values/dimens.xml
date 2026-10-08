@@ -8,9 +8,25 @@
 
     <dimen name="card_corner_radius">12dp</dimen>
     <dimen name="card_width">150dp</dimen>
-    <dimen name="card_image_height">130dp</dimen>
+
+    <dimen name="card_image_height">178dp</dimen>
+    <dimen name="card_rarity_gem_size">24dp</dimen>
+    <dimen name="card_stroke_width_normal">2.5dp</dimen>
+    <dimen name="card_stroke_width_legendary">4dp</dimen>
 
     <dimen name="hud_bar_height">10dp</dimen>
     <dimen name="joystick_size">120dp</dimen>
     <dimen name="attack_button_size">84dp</dimen>
+
+    <dimen name="text_size_display">40sp</dimen>
+    <dimen name="text_size_title">22sp</dimen>
+    <dimen name="text_size_subtitle">16sp</dimen>
+    <dimen name="text_size_body">14sp</dimen>
+    <dimen name="text_size_label">12sp</dimen>
+    <dimen name="text_size_micro">10sp</dimen>
+
+    <dimen name="text_size_hud_flash">26sp</dimen>
+    <dimen name="text_size_hud_banner">20sp</dimen>
+    <dimen name="text_size_hud_readout">15sp</dimen>
+    <dimen name="text_size_stat_value">20sp</dimen>
 </resources>

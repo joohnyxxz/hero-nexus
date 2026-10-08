@@ -1,5 +1,6 @@
 package com.app.hero_nexus.data.repository
 
+import android.util.Log
 import com.app.hero_nexus.data.model.BattleResult
 import com.app.hero_nexus.data.model.ChestType
 import com.app.hero_nexus.data.model.MissionCatalog
@@ -14,16 +15,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
-/**
- * Tudo que é "progresso do jogador" (seção 5 - Arquitetura de dados / seção 25 - Banco de dados).
- * Autenticação via Firebase Auth; progresso via Firestore, sob users/{uid}/...
- */
 class UserRepository(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) {
     val currentUid: String? get() = auth.currentUser?.uid
     val isLoggedIn: Boolean get() = auth.currentUser != null
+
+    companion object {
+        private const val FLAG_VILLAIN_RESET_V1 = "villainResetV1Applied"
+    }
 
     private fun userDoc(uid: String) = firestore.collection(Constants.COL_USERS).document(uid)
     private fun charactersCol(uid: String) = userDoc(uid).collection(Constants.COL_USER_CHARACTERS)
@@ -33,8 +34,6 @@ class UserRepository(
     private fun skinsCol(uid: String) = userDoc(uid).collection(Constants.COL_SKINS)
     private fun battleHistoryCol(uid: String) = userDoc(uid).collection(Constants.COL_BATTLE_HISTORY)
     private fun usernamesCol() = firestore.collection("usernames")
-
-    // ---------------------------------------------------------------- Cadastro / login (seção 6)
 
     suspend fun register(username: String, email: String, password: String): Result<Unit> = runCatching {
         val usernameKey = username.trim().lowercase()
@@ -63,21 +62,28 @@ class UserRepository(
 
     fun logout() = auth.signOut()
 
-    // ---------------------------------------------------------------------------- Perfil (XP/moedas/nível)
-
     suspend fun getProfile(uid: String): UserProfile? =
         userDoc(uid).get().await().toObject(UserProfile::class.java)
 
-    /** Soma XP e moedas de forma atômica e recalcula o nível (seção 19/20). */
     suspend fun addXpAndCoins(uid: String, xpDelta: Int, coinsDelta: Int): UserProfile {
         return firestore.runTransaction { tx ->
             val snap = tx.get(userDoc(uid))
             val current = snap.toObject(UserProfile::class.java) ?: UserProfile(uid = uid)
             val newXp = current.xp + xpDelta
             val newCoins = (current.coins + coinsDelta).coerceAtLeast(0)
-            val updated = current.copy(xp = newXp, coins = newCoins, level = UserProfile.levelForXp(newXp))
-            tx.set(userDoc(uid), updated)
-            updated
+            val newLevel = UserProfile.levelForXp(newXp)
+
+            tx.set(
+                userDoc(uid),
+                mapOf(
+                    "uid" to uid,
+                    "xp" to newXp,
+                    "coins" to newCoins,
+                    "level" to newLevel
+                ),
+                SetOptions.merge()
+            )
+            current.copy(xp = newXp, coins = newCoins, level = newLevel)
         }.await()
     }
 
@@ -88,7 +94,8 @@ class UserRepository(
             if (current.coins < amount) {
                 false
             } else {
-                tx.update(userDoc(uid), "coins", current.coins - amount)
+
+                tx.set(userDoc(uid), mapOf("uid" to uid, "coins" to (current.coins - amount)), SetOptions.merge())
                 true
             }
         }.await()
@@ -96,12 +103,14 @@ class UserRepository(
 
     private fun chestField(type: ChestType) = if (type == ChestType.HEROI) "heroChests" else "specialChests"
 
-    /** Chamado ao final de uma batalha vitoriosa (seção 18/23). */
     suspend fun awardChest(uid: String, type: ChestType) {
-        userDoc(uid).update(chestField(type), com.google.firebase.firestore.FieldValue.increment(1)).await()
+
+        userDoc(uid).set(
+            mapOf("uid" to uid, chestField(type) to com.google.firebase.firestore.FieldValue.increment(1)),
+            SetOptions.merge()
+        ).await()
     }
 
-    /** Consome um baú disponível de forma atômica; retorna false se não havia nenhum. */
     suspend fun tryConsumeChest(uid: String, type: ChestType): Boolean {
         return firestore.runTransaction { tx ->
             val snap = tx.get(userDoc(uid))
@@ -110,13 +119,11 @@ class UserRepository(
             if (count <= 0) {
                 false
             } else {
-                tx.update(userDoc(uid), chestField(type), count - 1)
+                tx.set(userDoc(uid), mapOf("uid" to uid, chestField(type) to (count - 1)), SetOptions.merge())
                 true
             }
         }.await()
     }
-
-    // --------------------------------------------------------------------- Personagens do jogador
 
     suspend fun getCharacterStates(uid: String): Map<Int, UserCharacterState> {
         val snapshot = charactersCol(uid).get().await()
@@ -135,19 +142,22 @@ class UserRepository(
             .await()
     }
 
-    /**
-     * Jogador novo precisa começar com personagens suficientes pra montar 1 time (seção 6/11) —
-     * sem isso ele nunca conseguiria bater na aba Time/Batalha. Só mexe em nada se o jogador já
-     * tiver QUALQUER personagem registrado (ou seja, roda no máximo uma vez por conta).
-     */
     suspend fun ensureStarterCharacters(uid: String, starterIds: List<Int>) {
         if (starterIds.isEmpty()) return
-        val existing = charactersCol(uid).limit(1).get().await()
-        if (!existing.isEmpty) return
+
+        val existing = charactersCol(uid).get().await()
+        val alreadyHasUnlocked = existing.documents.any { it.getBoolean("unlocked") == true }
+        if (alreadyHasUnlocked) return
+
         val batch = firestore.batch()
-        starterIds.take(Constants.STARTER_CHARACTER_COUNT).forEach { id ->
+        val idsToUse = starterIds.take(Constants.STARTER_CHARACTER_COUNT)
+
+        idsToUse.forEach { id ->
             batch.set(charactersCol(uid).document(id.toString()), mapOf("unlocked" to true), SetOptions.merge())
         }
+
+        batch.set(deckDoc(uid), Team(idsToUse))
+
         batch.commit().await()
     }
 
@@ -157,7 +167,17 @@ class UserRepository(
             .await()
     }
 
-    // --------------------------------------------------------------------------------- Time / deck
+    suspend fun runVillainResetOnceIfNeeded(uid: String, villainIds: List<Int>) {
+        if (villainIds.isEmpty()) return
+        val snap = userDoc(uid).get().await()
+        if (snap.getBoolean(FLAG_VILLAIN_RESET_V1) == true) return
+        val batch = firestore.batch()
+        villainIds.forEach { id ->
+            batch.set(charactersCol(uid).document(id.toString()), mapOf("unlocked" to false), SetOptions.merge())
+        }
+        batch.set(userDoc(uid), mapOf("uid" to uid, FLAG_VILLAIN_RESET_V1 to true), SetOptions.merge())
+        batch.commit().await()
+    }
 
     suspend fun getTeam(uid: String): Team =
         deckDoc(uid).get().await().toObject(Team::class.java) ?: Team()
@@ -166,24 +186,21 @@ class UserRepository(
         deckDoc(uid).set(Team(characterIds.take(Constants.MAX_TEAM_SIZE))).await()
     }
 
-    // ------------------------------------------------------------------------------------ Missões
-    // O CATÁLOGO das missões (título/meta/recompensa) mora no Firestore, não fica mocado no app —
-    // "missions_catalog" é uma coleção global (igual pra todo mundo). Na primeira leitura, se ela
-    // ainda estiver vazia (projeto Firebase novo), semeamos com MissionCatalog.DEFAULTS uma única vez.
-
     suspend fun getMissionCatalog(): List<MissionDefinition> {
         val snapshot = missionsCatalogCol().get().await()
-        if (snapshot.isEmpty) {
-            seedMissionCatalog()
-            return MissionCatalog.DEFAULTS
-        }
-        return snapshot.documents.mapNotNull { doc -> doc.toObject(MissionDefinition::class.java) }
+        val existing = snapshot.documents.mapNotNull { doc -> doc.toObject(MissionDefinition::class.java) }
+        val existingIds = existing.map { it.id }.toSet()
+        val added = upsertMissingMissionDefs(existingIds)
+        return existing + added
     }
 
-    private suspend fun seedMissionCatalog() {
+    private suspend fun upsertMissingMissionDefs(existingIds: Set<String>): List<MissionDefinition> {
+        val missing = MissionCatalog.DEFAULTS.filter { it.id !in existingIds }
+        if (missing.isEmpty()) return emptyList()
         val batch = firestore.batch()
-        MissionCatalog.DEFAULTS.forEach { def -> batch.set(missionsCatalogCol().document(def.id), def) }
+        missing.forEach { def -> batch.set(missionsCatalogCol().document(def.id), def) }
         batch.commit().await()
+        return missing
     }
 
     suspend fun getMissionProgress(uid: String): Map<String, MissionProgress> {
@@ -193,24 +210,60 @@ class UserRepository(
         }
     }
 
-    /** A meta (target) vem do catálogo no banco — quem chama não precisa mais saber esse número. */
     suspend fun incrementMissionProgress(uid: String, missionId: String, amount: Int) {
-        val target = getMissionCatalog().firstOrNull { it.id == missionId }?.target ?: return
+        val def = getMissionCatalog().firstOrNull { it.id == missionId }
+        if (def == null) {
+            Log.e("UserRepository", "incrementMissionProgress: missionId desconhecido no catálogo: $missionId")
+            return
+        }
+        val target = def.target
+        val now = System.currentTimeMillis()
+
         firestore.runTransaction { tx ->
             val ref = missionsCol(uid).document(missionId)
             val snap = tx.get(ref)
             val current = snap.toObject(MissionProgress::class.java) ?: MissionProgress(id = missionId)
-            if (current.completed) return@runTransaction
-            val newProgress = (current.progress + amount).coerceAtMost(target)
-            tx.set(ref, current.copy(id = missionId, progress = newProgress, completed = newProgress >= target))
+
+            val shouldReset = when (def.category) {
+                "daily" -> MissionCatalog.isDifferentDay(current.lastResetAt, now)
+                "weekly" -> MissionCatalog.isDifferentWeek(current.lastResetAt, now)
+                else -> false
+            }
+
+            val baseProgress = if (shouldReset) 0 else current.progress
+            val baseCompleted = if (shouldReset) false else current.completed
+            val baseClaimed = if (shouldReset) false else current.claimed
+
+            val finalLastResetAt = if (shouldReset || current.lastResetAt == 0L) now else current.lastResetAt
+
+            if (baseCompleted && !shouldReset) return@runTransaction
+
+            val newProgress = (baseProgress + amount).coerceAtMost(target)
+            tx.set(
+                ref, current.copy(
+                    id = missionId,
+                    progress = newProgress,
+                    completed = newProgress >= target,
+                    claimed = baseClaimed,
+                    lastResetAt = finalLastResetAt
+                )
+            )
         }.await()
     }
 
     suspend fun claimMission(uid: String, missionId: String) {
-        missionsCol(uid).document(missionId).set(mapOf("claimed" to true), SetOptions.merge()).await()
+        firestore.runTransaction { tx ->
+            val ref = missionsCol(uid).document(missionId)
+            val current = tx.get(ref).toObject(MissionProgress::class.java) ?: MissionProgress(id = missionId)
+            if (!current.completed) {
+                throw IllegalStateException("Essa missão ainda não foi concluída.")
+            }
+            if (current.claimed) {
+                throw IllegalStateException("Essa recompensa já foi resgatada.")
+            }
+            tx.set(ref, mapOf("claimed" to true), SetOptions.merge())
+        }.await()
     }
-
-    // --------------------------------------------------------------------------------------- Skins
 
     suspend fun getOwnedSkinIds(uid: String): Set<String> =
         skinsCol(uid).get().await().documents.map { it.id }.toSet()
@@ -226,8 +279,6 @@ class UserRepository(
         }
         return paid
     }
-
-    // ------------------------------------------------------------------------------ Histórico de batalha
 
     suspend fun recordBattleResult(uid: String, result: BattleResult) {
         battleHistoryCol(uid).add(

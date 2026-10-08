@@ -12,6 +12,7 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:gravity="end"
+        android:textAppearance="@style/TextAppearance.Heronexus.StatValue"
         android:textColor="@color/text_white"
         android:textStyle="bold"
         tools:text="74" />
@@ -22,8 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
-        android:textColor="@color/text_muted"
-        android:textSize="12sp"
+        android:textAppearance="@style/TextAppearance.Heronexus.Label"
         tools:text="Força" />
 
     <TextView
@@ -31,6 +31,7 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:gravity="start"
+        android:textAppearance="@style/TextAppearance.Heronexus.StatValue"
         android:textColor="@color/text_white"
         android:textStyle="bold"
         tools:text="80" />

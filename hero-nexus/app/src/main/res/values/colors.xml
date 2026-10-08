@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Paleta "Comic Battle" / Direção recomendada (Documento de Projeto, seções 31 e 36) -->
+
     <color name="bg_deep_blue">#101A35</color>
     <color name="bg_deep_blue_light">#1A2748</color>
     <color name="combat_red">#E62429</color>
@@ -8,26 +8,29 @@
     <color name="reward_gold">#FFC400</color>
     <color name="text_white">#FFFFFF</color>
     <color name="text_muted">#B7BDD1</color>
-    <color name="card_dark">#20242B</color>
-    <color name="card_dark_light">#2B303A</color>
+    <color name="card_dark">#262B36</color>
+    <color name="card_dark_light">#323A48</color>
+    <color name="card_stroke">#3A2F1E</color>
+
+    <color name="card_stroke_gold">#665328</color>
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Estados -->
+    <color name="crate_green">#00A86B</color>
     <color name="success_green">#3CCB6E</color>
     <color name="error_red">#E62429</color>
     <color name="locked_overlay">#B0000000</color>
     <color name="scrim">#99000000</color>
 
-    <!-- Raridade -->
     <color name="rarity_common">#8A93A6</color>
     <color name="rarity_rare">#2E9BFF</color>
     <color name="rarity_epic">#B14BF4</color>
     <color name="rarity_legendary">#FFC400</color>
     <color name="rarity_boss">#E62429</color>
 
-    <!-- HUD de batalha -->
+    <color name="rarity_locked">#4B5160</color>
+
     <color name="health_full">#3CCB6E</color>
     <color name="health_mid">#FFC400</color>
     <color name="health_low">#E62429</color>

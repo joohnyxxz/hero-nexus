@@ -6,13 +6,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.app.hero_nexus.HeroNexusApp
 import com.app.hero_nexus.R
 import com.app.hero_nexus.databinding.ActivityLoginBinding
 import com.app.hero_nexus.ui.collection.CollectionActivity
+import com.app.hero_nexus.util.Constants
 import com.app.hero_nexus.util.Resource
 import com.app.hero_nexus.util.gone
 import com.app.hero_nexus.util.visible
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
@@ -28,6 +32,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        loadThematicBackground()
 
         binding.buttonLogin.setOnClickListener {
             val email = binding.inputEmail.text?.toString().orEmpty()
@@ -64,6 +70,16 @@ class LoginActivity : AppCompatActivity() {
                     showError(state.message)
                 }
                 else -> Unit
+            }
+        }
+    }
+
+    private fun loadThematicBackground() {
+        lifecycleScope.launch {
+            val app = application as HeroNexusApp
+            val url = app.backgroundRepository.findBackgroundUrl(Constants.PEXELS_LOGIN_BG_QUERY)
+            if (url != null) {
+                Glide.with(this@LoginActivity).load(url).into(binding.imageLoginBackground)
             }
         }
     }

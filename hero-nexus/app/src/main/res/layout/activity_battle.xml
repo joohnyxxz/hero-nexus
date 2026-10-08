@@ -5,15 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_deep_blue"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <com.app.hero_nexus.ui.battle.BattleView
         android:id="@+id/battleView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- HUD superior -->
     <LinearLayout
+        android:id="@+id/layoutHudTop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -39,6 +41,7 @@
                 android:id="@+id/textPlayerName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
                 android:textColor="@color/text_white"
                 android:textStyle="bold"
                 tools:text="Homem-Aranha" />
@@ -54,17 +57,10 @@
                 tools:progress="80" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textEnemiesDefeated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/spacing_m"
-            android:textColor="@color/text_white"
-            tools:text="Inimigos: 3" />
-
         <ImageView
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_marginStart="@dimen/spacing_m"
             android:src="@drawable/ic_coin" />
 
         <TextView
@@ -72,12 +68,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
             android:textColor="@color/reward_gold"
             android:textStyle="bold"
             tools:text="120" />
     </LinearLayout>
 
-    <!-- Barra de vida do chefe -->
     <LinearLayout
         android:id="@+id/layoutBossHealth"
         android:layout_width="260dp"
@@ -93,21 +89,13 @@
             android:id="@+id/textBossName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
             android:textColor="@color/rarity_boss"
             android:textStyle="bold"
             tools:text="DUENDE VERDE" />
 
-        <ProgressBar
-            android:id="@+id/progressBossHealth"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/hud_bar_height"
-            android:max="100"
-            android:progressDrawable="@drawable/progress_boss_health_bar"
-            tools:progress="70" />
     </LinearLayout>
 
-    <!-- Banner de eventos (troca de personagem, chefe chegando, etc.) -->
     <TextView
         android:id="@+id/textBanner"
         android:layout_width="wrap_content"
@@ -116,14 +104,13 @@
         android:background="@color/scrim"
         android:paddingHorizontal="@dimen/spacing_l"
         android:paddingVertical="@dimen/spacing_s"
+        android:textAppearance="@style/TextAppearance.Heronexus.HudBanner"
         android:textColor="@color/reward_gold"
-        android:textSize="20sp"
         android:textStyle="bold"
         android:visibility="gone"
         tools:text="DUENDE VERDE DERROTADO"
         tools:visibility="visible" />
 
-    <!-- Joystick virtual -->
     <FrameLayout
         android:id="@+id/joystickArea"
         android:layout_width="@dimen/joystick_size"
@@ -144,20 +131,126 @@
             android:background="@drawable/bg_joystick_knob" />
     </FrameLayout>
 
-    <!-- Botão de ataque -->
-    <View
+    <FrameLayout
         android:id="@+id/buttonAttack"
+        android:clickable="true"
         android:layout_width="@dimen/attack_button_size"
         android:layout_height="@dimen/attack_button_size"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/spacing_l"
-        android:background="@drawable/bg_attack_button" />
+        android:background="@drawable/bg_attack_button">
 
-    <ImageView
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_fist" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/buttonSpecial"
+        android:clickable="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_gravity="bottom|end"
-        android:layout_margin="42dp"
-        android:src="@drawable/ic_sword" />
+        android:layout_marginEnd="@dimen/spacing_l"
+        android:layout_marginBottom="118dp"
+        android:background="@drawable/bg_special_button">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_special" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="38dp"
+        android:layout_marginBottom="182dp"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/pipSpecial1"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginEnd="5dp"
+            android:alpha="0.28"
+            android:background="@drawable/bg_special_pip" />
+
+        <View
+            android:id="@+id/pipSpecial2"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:alpha="0.28"
+            android:background="@drawable/bg_special_pip" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/buttonFood"
+        android:clickable="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="114dp"
+        android:layout_marginBottom="36dp"
+        android:background="@drawable/bg_food_button"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_food" />
+
+        <TextView
+            android:id="@+id/textFoodCount"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-6dp"
+            android:layout_marginEnd="-6dp"
+            android:background="@drawable/bg_food_count_badge"
+            android:gravity="center"
+            android:textColor="@color/text_white"
+            android:textSize="@dimen/text_size_micro"
+            android:textStyle="bold"
+            tools:text="3" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_battle_transition"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <FrameLayout
+        android:id="@+id/minibossFlashOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:alpha="0"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textMinibossDefeated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textAppearance="@style/TextAppearance.Heronexus.HudFlash"
+            android:letterSpacing="0.04"
+            android:textColor="@color/reward_gold"
+            android:textStyle="bold"
+            tools:text="CHEFE DA GANGUE DERROTADO!" />
+    </FrameLayout>
 
 </FrameLayout>

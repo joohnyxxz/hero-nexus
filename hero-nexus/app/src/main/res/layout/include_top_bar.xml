@@ -5,7 +5,7 @@
     android:id="@+id/topBarRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/bg_deep_blue_light"
+    android:background="@drawable/bg_top_bar"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_m"
@@ -19,7 +19,6 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.Heronexus.Title"
-        android:textSize="18sp"
         tools:text="Coleção" />
 
     <ImageView
@@ -33,6 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/spacing_m"
+        android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
         android:textColor="@color/reward_gold"
         android:textStyle="bold"
         tools:text="1.000" />
@@ -42,6 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/spacing_s"
+        android:textAppearance="@style/TextAppearance.Heronexus.HudReadout"
         android:textColor="@color/text_white"
         tools:text="Nv. 7" />
 

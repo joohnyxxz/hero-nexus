@@ -17,7 +17,6 @@ import com.app.hero_nexus.util.visibleIf
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-/** Seção 18 do documento — baús de recompensa. */
 class ChestsActivity : MainNavActivity() {
 
     private lateinit var binding: ActivityChestsBinding
@@ -70,7 +69,15 @@ class ChestsActivity : MainNavActivity() {
                 return@launch
             }
             val reward = rollReward(uid, type)
-            applyReward(uid, reward)
+
+            runCatching { applyReward(uid, reward) }.onFailure { e ->
+                android.util.Log.e("ChestsActivity", "Falha ao aplicar recompensa do baú", e)
+                Toast.makeText(
+                    this@ChestsActivity,
+                    "Recompensa sorteada mas não salvou no servidor (${e.message ?: "erro"}). Tente abrir outro baú se sobrar.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
             showRewardDialog(reward)
             refreshCounts()
             refreshProfileHeader(binding.topBar.textCoins, binding.topBar.textLevel)

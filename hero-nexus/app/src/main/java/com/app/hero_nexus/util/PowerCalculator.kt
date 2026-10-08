@@ -5,34 +5,37 @@ import com.app.hero_nexus.data.model.CharacterCategory
 import java.util.Locale
 import kotlin.random.Random
 
-/**
- * A Comic Vine não fornece atributos numéricos de combate (Força, Velocidade, etc.) —
- * apenas nomes de poderes e texto livre. O documento (seção 4.3) prevê explicitamente
- * que esses atributos podem ser "adaptados ou calculados pela aplicação".
- *
- * Geramos valores determinísticos (mesma seed = mesmo resultado sempre) a partir do id
- * do personagem na Comic Vine, com um pequeno bônus de popularidade
- * (count_of_issue_appearances), para que personagens mais famosos tendam a ser mais fortes.
- */
 object PowerCalculator {
 
     private const val MIN_STAT = 35
     private const val MAX_STAT = 99
 
-    fun calculateStats(comicVineId: Int, countOfIssueAppearances: Int): BattleStats {
-        val random = Random(comicVineId.toLong())
-        val popularityBonus = popularityBonus(countOfIssueAppearances)
+    private const val TRAIT_BONUS = 22
 
-        fun stat(): Int = (random.nextInt(MIN_STAT, MAX_STAT - popularityBonus + 1) + popularityBonus)
-            .coerceIn(MIN_STAT, MAX_STAT)
+    fun calculateStats(
+        comicVineId: Int,
+        countOfIssueAppearances: Int,
+        category: CharacterCategory,
+        deck: String?,
+        description: String?
+    ): BattleStats {
+        val random = Random(comicVineId.toLong())
+        val baseBonus = popularityBonus(countOfIssueAppearances) + categoryBonus(category)
+        val text = ((deck ?: "") + " " + (description ?: "")).lowercase(Locale.ROOT)
+
+        fun stat(traitKeywords: Set<String>): Int {
+            val hasTrait = traitKeywords.any { text.contains(it) }
+            val bonus = (baseBonus + if (hasTrait) TRAIT_BONUS else 0).coerceAtMost(MAX_STAT - MIN_STAT)
+            return (random.nextInt(MIN_STAT, MAX_STAT - bonus + 1) + bonus).coerceIn(MIN_STAT, MAX_STAT)
+        }
 
         return BattleStats(
-            strength = stat(),
-            speed = stat(),
-            intelligence = stat(),
-            durability = stat(),
-            power = stat(),
-            combat = stat()
+            strength = stat(STRENGTH_KEYWORDS),
+            speed = stat(SPEED_KEYWORDS),
+            intelligence = stat(INTELLIGENCE_KEYWORDS),
+            durability = stat(DURABILITY_KEYWORDS),
+            power = stat(POWER_KEYWORDS),
+            combat = stat(COMBAT_KEYWORDS)
         )
     }
 
@@ -43,16 +46,39 @@ object PowerCalculator {
         appearances >= 100 -> 2
         else -> 0
     }
+
+    private fun categoryBonus(category: CharacterCategory): Int = when (category) {
+        CharacterCategory.VILAO -> 26
+        CharacterCategory.ANTI_HEROI -> 8
+        CharacterCategory.HEROI -> 0
+    }
+
+    private val INTELLIGENCE_KEYWORDS = setOf(
+        "genius", "scientist", "inventor", "tactician", "strategist", "intellect",
+        "brilliant", "engineer", "prodigy", "scientific mind", "super-genius"
+    )
+    private val STRENGTH_KEYWORDS = setOf(
+        "superhuman strength", "super strength", "super-strength", "incredibly strong",
+        "enormous strength", "immense strength", "strongest"
+    )
+    private val SPEED_KEYWORDS = setOf(
+        "super speed", "superhuman speed", "super-speed", "fastest", "speed force"
+    )
+    private val DURABILITY_KEYWORDS = setOf(
+        "invulnerab", "regenerat", "healing factor", "nearly indestructible", "unstoppable",
+        "impervious", "immortal"
+    )
+    private val POWER_KEYWORDS = setOf(
+        "cosmic power", "cosmic energy", "mystical", "magic", "energy blasts",
+        "reality-warping", "omega-level", "god of"
+    )
+    private val COMBAT_KEYWORDS = setOf(
+        "master martial artist", "expert combatant", "master combatant", "skilled fighter",
+        "weapons expert", "master assassin", "trained by", "master tactician in combat",
+        "hand-to-hand combat"
+    )
 }
 
-/**
- * Classificação de alinhamento (Herói / Anti-herói / Vilão) usada nos filtros da coleção
- * (seção 8) e para decidir quem pode aparecer como chefe de fase (seção 16).
- *
- * A Comic Vine não expõe esse dado de forma estruturada, então usamos listas curadas dos
- * personagens Marvel mais conhecidos. Qualquer nome fora dessas listas é tratado como Herói
- * por padrão — a lista pode crescer conforme o jogo evolui.
- */
 object CharacterCategorizer {
 
     private val villains = setOf(

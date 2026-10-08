@@ -27,6 +27,5 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.Heronexus.Title"
-        android:textSize="18sp"
         tools:text="Homem-Aranha" />
 </LinearLayout>

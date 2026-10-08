@@ -21,9 +21,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_m"
+        android:textAppearance="@style/TextAppearance.Heronexus.Title"
         android:textColor="@color/reward_gold"
-        android:textSize="18sp"
-        android:textStyle="bold"
         tools:text="NOVO PERSONAGEM!" />
 
     <TextView
@@ -31,8 +30,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:textAppearance="@style/TextAppearance.Heronexus.Subtitle"
         android:textColor="@color/text_white"
-        android:textSize="16sp"
         tools:text="Homem-Aranha" />
 
 </LinearLayout>

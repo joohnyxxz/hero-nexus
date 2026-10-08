@@ -11,6 +11,7 @@ import com.app.hero_nexus.R
 import com.app.hero_nexus.data.local.CharacterEntity
 import com.app.hero_nexus.databinding.ActivityCompareBinding
 import com.app.hero_nexus.databinding.ItemCompareAttributeRowBinding
+import com.app.hero_nexus.util.applyStatusBarTopInset
 import com.app.hero_nexus.util.loadCharacterImage
 import kotlinx.coroutines.launch
 
@@ -28,6 +29,7 @@ class CompareActivity : AppCompatActivity() {
         binding = ActivityCompareBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.backBar.root.applyStatusBarTopInset()
         binding.backBar.buttonBack.setOnClickListener { finish() }
         binding.backBar.textBackBarTitle.setText(R.string.compare_title)
 

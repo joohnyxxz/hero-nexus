@@ -3,6 +3,7 @@ package com.app.hero_nexus.ui.result
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.app.hero_nexus.R
 import com.app.hero_nexus.data.model.BattleResult
@@ -12,7 +13,6 @@ import com.app.hero_nexus.ui.battle.BattleActivity
 import com.app.hero_nexus.ui.collection.CollectionActivity
 import com.app.hero_nexus.util.visibleIf
 
-/** Tela de resultado — seção 23 do documento (Vitória / Derrota). */
 class BattleResultActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBattleResultBinding
@@ -51,15 +51,25 @@ class BattleResultActivity : AppCompatActivity() {
         binding.buttonPlayAgain.setText(if (victory) R.string.result_play_again else R.string.result_try_again)
         binding.buttonPlayAgain.setOnClickListener {
             startActivity(BattleActivity.newIntent(this, teamIds))
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             finish()
         }
-        binding.buttonBackToCollection.setOnClickListener {
-            startActivity(
-                Intent(this, CollectionActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            )
-            finish()
-        }
+        binding.buttonBackToCollection.setOnClickListener { goBackToCollection() }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                goBackToCollection()
+            }
+        })
+    }
+
+    private fun goBackToCollection() {
+        startActivity(
+            Intent(this, CollectionActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        )
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        finish()
     }
 
     companion object {
