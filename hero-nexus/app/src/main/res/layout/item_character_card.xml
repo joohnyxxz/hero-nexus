@@ -42,12 +42,6 @@
             app:layout_constraintEnd_toEndOf="@id/imageCharacter"
             app:layout_constraintStart_toStartOf="@id/imageCharacter" />
 
-        <!-- Rodada 15, parte 61 (07/10/2026): pedido do usuario: "a carta cinza se nao tiver
-             desbloqueado". Antes só a FOTO ficava em escala de cinza (ColorMatrix no
-             CharacterAdapter); moldura, cabeçalho e selo de raridade continuavam coloridos,
-             entregando de bandeja a raridade de um personagem ainda bloqueado. Este véu escuro
-             (visível só quando bloqueado, ver CharacterAdapter) cobre a ilustração inteira por
-             cima da foto já acinzentada, reforçando a sensação de "carta selada". -->
         <View
             android:id="@+id/viewLockedScrim"
             android:layout_width="0dp"
@@ -134,9 +128,6 @@
             app:tint="@color/text_white"
             tools:visibility="visible" />
 
-        <!-- Selo de raridade: pedido do usuário, "algum detalhe mostrando a raridade da
-             cartinha": um círculo colorido (cor da raridade, tintada em CharacterAdapter), no
-             canto oposto ao nome, além da faixa de texto que já existia no topo (headerBar). -->
         <ImageView
             android:id="@+id/imageRarityGem"
             android:layout_width="@dimen/card_rarity_gem_size"
@@ -151,9 +142,6 @@
             app:tint="@color/bg_deep_blue"
             tools:ignore="ContentDescription" />
 
-        <!-- Cor de fundo trocada em tempo de execução (CharacterAdapter) pela mesma cor da
-             raridade/moldura do card; o tools:background abaixo é só o que aparece no
-             preview do Android Studio antes de bindar. -->
         <View
             android:id="@+id/dividerStats"
             android:layout_width="0dp"
@@ -177,12 +165,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/dividerStats">
 
-            <!-- Rodada 15, parte 63 (07/10/2026): a estrela da parte 62 acabou criando um
-                 problema novo, percebido pelo usuário: a mesma forma (estrela) aparecendo
-                 duas vezes na mesma carta (aqui e no selo de raridade, imageRarityGem acima),
-                 só com cor/posição diferentes, lia como duplicado/confuso. ic_power_bars é um
-                 ícone só dele, dedicado a "nível de poder" (3 barras crescentes), sem repetir
-                 nenhuma forma já usada em outro lugar do card ou do app. -->
             <ImageView
                 android:id="@+id/iconPower"
                 android:layout_width="14dp"

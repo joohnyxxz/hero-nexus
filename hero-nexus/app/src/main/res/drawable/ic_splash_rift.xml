@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 15, partes 66 a 68 (07/10/2026): ver bg_splash_portal_glow.xml pro historico completo,
-     da "bola laranja" virando "fenda de energia", depois o ajuste de tamanho/traço.
 
-     Rodada 15, parte 68 (07/10/2026): pedido novo do usuário. Além do anel inteiro girar, as
-     rachaduras de dentro precisavam se mexer por conta própria, não girar tudo junto feito um
-     disco rígido. Como um vetor só tem uma transformação (rotation/scale fica no ImageView
-     inteiro), a única forma de ter movimento independente de verdade é separar os traços em mais
-     de um drawable/ImageView, cada um com seu próprio Animator. Este arquivo, que antes tinha as
-     5 rachaduras e 2 arcos juntos, agora é só o grupo A: rachaduras 1, 3 e 5, as que nascem pra
-     cima-esquerda, baixo-esquerda e reto pra cima. Ver ic_splash_rift_b.xml (rachaduras 2 e 4 mais
-     os 2 arcos quebrados) e ic_splash_rift_embers.xml (as faíscas). Em activity_main.xml os três
-     ficam empilhados na mesma posição/tamanho, e MainActivity.kt gira cada um numa velocidade e
-     direção diferente, a composição dos três é que lê como coisas se mexendo, não uma peça só. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="480dp"
     android:height="480dp"

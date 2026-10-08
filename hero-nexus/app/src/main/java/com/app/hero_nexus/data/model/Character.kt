@@ -1,11 +1,9 @@
 package com.app.hero_nexus.data.model
 
-/** Alinhamento do personagem no universo (seção 8 - filtros da coleção). */
 enum class CharacterCategory {
     HEROI, ANTI_HEROI, VILAO
 }
 
-/** Raridade exibida no card (seção 34 - design dos cards). */
 enum class Rarity {
     COMUM, RARO, EPICO, LENDARIO;
 
@@ -19,7 +17,6 @@ enum class Rarity {
     }
 }
 
-/** Atributos de combate (seção 9 - ficha do personagem / seção 4.3 - uso em batalha). */
 data class BattleStats(
     val strength: Int,
     val speed: Int,
@@ -28,17 +25,11 @@ data class BattleStats(
     val power: Int,
     val combat: Int
 ) {
-    /** "Poder geral" mostrado no card e usado para ordenar/filtrar a coleção. */
+
     val overallPower: Int
         get() = ((strength + speed + intelligence + durability + power + combat) / 6.0).toInt()
 }
 
-/**
- * Modelo de domínio que une:
- *  - dados vindos da Comic Vine (via cache local em Room) — "Homem-Aranha existe"
- *  - estado do jogador vindo do Firestore — "o jogador desbloqueou Homem-Aranha"
- * (ver seção 5 do documento: Arquitetura de dados).
- */
 data class Character(
     val id: Int,
     val name: String,
@@ -52,30 +43,19 @@ data class Character(
     val isBossCandidate: Boolean,
     val stats: BattleStats,
     val siteDetailUrl: String?,
-    // Rodada 15, parte 58 (07/10/2026): campo mantido só por compatibilidade com o Room (coluna
-    // já existe, trocar de novo o schema zeraria o cache à toa) -- NÃO é mais usado por
-    // [rarity] abaixo. Motivo (feedback do usuário depois de ver o top-3 da parte 57 em ação):
-    // um limiar relativo ("os N melhores do catálogo JÁ CARREGADO") muda de resultado conforme
-    // mais personagens entram no cache -- um personagem podia ser LENDARIO hoje e virar EPICO
-    // de uma hora pra outra só porque "carregar mais" trouxe alguém com OVR maior, mudando o
-    // tipo visual do card sem o personagem em si ter mudado nada. Isso é feio e imprevisível.
+
     val isTopRanked: Boolean = false,
-    // Estado do jogador (Firestore); valores padrão = personagem ainda não visto/desbloqueado.
+
     val unlocked: Boolean = false,
     val level: Int = 1,
     val xp: Int = 0,
     val equippedSkinId: String? = null
 ) {
-    /** Rodada 15, parte 58 (07/10/2026): raridade volta a ser 100% limiar fixo de Poder Geral
-     * (ver [Rarity.fromPower]) -- "quem realmente é bom" é LENDARIO, ponto, sem depender de
-     * quantos personagens já foram carregados nem de um recorte fixo de N posições. A correção
-     * de verdade pro "Gavião Arqueiro > Doutor Destino" já está no CÁLCULO do OVR (ver
-     * [PowerCalculator] -- bônus de categoria), não em remendar o resultado aqui por cima. */
+
     val rarity: Rarity
         get() = Rarity.fromPower(stats.overallPower)
 }
 
-/** Estado do jogador para UM personagem, como guardado no Firestore (seção 25 - user_characters). */
 data class UserCharacterState(
     val unlocked: Boolean = false,
     val level: Int = 1,

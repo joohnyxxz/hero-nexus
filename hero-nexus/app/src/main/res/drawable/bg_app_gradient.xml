@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 10 (01/09): antes cada tela usava um bloco solido @color/bg_deep_blue, o que o
-     usuario descreveu como "pesado", monotono, sem nenhuma variacao ou textura. Este drawable
-     troca isso por um degrade diagonal sutil (navy escuro para navy mais claro com leve calor).
-     Revisao 06/09: o endColor original (#241C3A) tinha Azul mais alto que Vermelho, o que lia
-     como roxo em vez do "leve calor" pretendido no comentario acima , e como esse gradiente
-     cobre praticamente toda tela do app, isso deixava o app inteiro com uma lavagem
-     azul-marinho-pra-roxo, parecido com a estetica generica de "roxo e preto" de app de
-     tecnologia, bem longe da paleta "Comic Battle" (vermelho/dourado/navy) que e a identidade
-     real do jogo. Trocado por um tom vinho escuro (Vermelho > Azul) que aquece na mesma
-     direcao sem escorregar pra roxo.
-     Revisao 06/09, parte 2: a camada de textura de pontos (Ben-Day dots) foi removida por
-     pedido explicito do usuario apos revisar uma lista de "clichês de design generico de IA"
-     , mesmo sendo uma referencia deliberada de impressao de HQ (nao decoracao generica), pra
-     simplificar o fundo. O arquivo img_halftone_dots.png ficou orfao (sem nenhuma outra
-     referencia no projeto), mantido no disco sem uso caso o usuario queira reaproveitar depois.
-     -->
+
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">

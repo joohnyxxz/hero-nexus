@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 10 (01/09): as fotos de personagem vem da Comic Vine com qualidade/enquadramento
-     bem inconsistente entre si (fundo branco, fundo transparente, corpo inteiro, so rosto...).
-     Esse verniz radial escurece sutilmente os cantos de qualquer foto por baixo, dando uma
-     sensacao de moldura consistente em vez de mostrar a foto crua, sem esconder a imagem
-     (alpha bem baixo, ver item_character_card.xml). -->
+
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <gradient
         android:type="radial"

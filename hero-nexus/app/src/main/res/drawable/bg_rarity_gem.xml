@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 15, parte 61 (07/10/2026): "selo" de raridade, pedido do usuario por "algum
-     detalhe mostrando a raridade da cartinha", num card que agora se parece mais com uma carta
-     de RPG. Fica sobre a ilustracao (canto inferior direito, perto do nome), tintado por cima
-     (backgroundTintList, mesmo padrao ja usado em headerBar no CharacterAdapter) com a cor da
-     raridade, ou cinza (rarity_locked) quando o personagem ainda nao foi desbloqueado. O anel
-     claro por cima garante contraste mesmo sobre fotos muito claras da Comic Vine. -->
+
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <solid android:color="@color/rarity_common" />
     <stroke android:width="1.5dp" android:color="#CCFFFFFF" />

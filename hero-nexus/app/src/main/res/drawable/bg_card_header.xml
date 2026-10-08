@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 12 (01/09): antes a raridade era so um chip pequeno no canto (com estrelinha) e o
-     nivel outro chip solto no canto oposto, resposta ao pedido de "estilo de card" mais
-     caprichado pros personagens. Agora e uma unica faixa no topo do card (cor da raridade,
-     aplicada via tint no CharacterAdapter), com raridade a esquerda e nivel a direita, tipo
-     cabecalho de card de jogo de cartas. -->
+
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">

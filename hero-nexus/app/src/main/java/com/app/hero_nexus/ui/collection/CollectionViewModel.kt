@@ -8,6 +8,7 @@ import com.app.hero_nexus.data.local.CharacterEntity
 import com.app.hero_nexus.data.local.toDomain
 import com.app.hero_nexus.data.model.Character
 import com.app.hero_nexus.data.model.CharacterCategory
+import com.app.hero_nexus.data.model.Team
 import com.app.hero_nexus.data.model.UserCharacterState
 import com.app.hero_nexus.data.repository.CharacterRepository
 import com.app.hero_nexus.data.repository.UserRepository
@@ -26,17 +27,12 @@ class CollectionViewModel(
     private val _refreshState = MutableLiveData<Resource<Unit>>()
     val refreshState: LiveData<Resource<Unit>> = _refreshState
 
-    /** Rodada 15, parte 13 (30/09/2026): estado só de "carregar mais" (scroll até o fim),
-     * separado do [refreshState] acima (que é sobre a 1ª leva / pull-to-refresh). */
     private val _loadMoreState = MutableLiveData<Resource<Unit>>()
     val loadMoreState: LiveData<Resource<Unit>> = _loadMoreState
 
     private var isLoadingMore = false
     val hasMore: Boolean get() = characterRepository.hasMore
 
-    /** Rodada 15, parte 40 (04/10/2026): estado da busca ao vivo na Comic Vine (ver
-     * searchRemote() abaixo) -- separado de refreshState/loadMoreState porque é disparado pela
-     * barra de pesquisa, não pela splash/scroll. */
     private val _remoteSearchState = MutableLiveData<Resource<Int>>()
     val remoteSearchState: LiveData<Resource<Int>> = _remoteSearchState
 
@@ -44,8 +40,7 @@ class CollectionViewModel(
     private var userStates: Map<Int, UserCharacterState> = emptyMap()
 
     fun start(uid: String) {
-        // Observa o Room desde já: se já tiver cache válido, a tela pinta na hora, sem esperar
-        // a leva de rede abaixo (que aí nem precisa rodar, ver ensureFirstBatch).
+
         viewModelScope.launch {
             characterRepository.observeCollection().collect { entities ->
                 lastEntities = entities
@@ -55,49 +50,45 @@ class CollectionViewModel(
 
         viewModelScope.launch {
             _refreshState.value = Resource.Loading
-            _refreshState.value = characterRepository.ensureFirstBatch()
+
+            characterRepository.ensureFirstBatch()
+
+            val currentTeam = runCatching { userRepository.getTeam(uid) }.getOrDefault(Team())
+
+            val earlyStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(emptyMap())
+            val hasAnyUnlocked = earlyStates.values.any { it.unlocked }
+
+            if (currentTeam.isEmpty || !hasAnyUnlocked) {
+
+                val starterIds = listOf(1443, 1442, 1440)
+
+                val cached = characterRepository.getAllCached()
+                val starterNames = mapOf(1443 to "Spider-Man", 1442 to "Captain America", 1440 to "Wolverine")
+
+                starterIds.forEach { id ->
+                    if (cached.none { it.comicVineId == id }) {
+                        characterRepository.searchRemote(starterNames[id]!!)
+                    }
+                }
+
+                runCatching { userRepository.ensureStarterCharacters(uid, starterIds) }.onFailure {
+                    it.printStackTrace()
+                }
+            }
 
             userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(emptyMap())
+
+            val allCached = characterRepository.getAllCached()
+            val villainIds = allCached.filter { it.category == CharacterCategory.VILAO.name }.map { it.comicVineId }
+            runCatching { userRepository.runVillainResetOnceIfNeeded(uid, villainIds) }
+
+            userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(userStates)
+
+            _refreshState.value = Resource.Success(Unit)
             recompute()
-
-            // Jogador novo (sem NENHUM personagem registrado ainda) começa com alguns já desbloqueados,
-            // senão não dá pra montar time nem entrar na batalha (seção 6/11 do documento).
-            val cached = characterRepository.getAllCached()
-            if (cached.isNotEmpty()) {
-                // Starters nunca podem ser vilão (revisão pós-validação rodada 13): categoria
-                // VILAO é justamente o que o reset abaixo tranca de novo, e os dois rodam no
-                // mesmo start() -- sem esse filtro, uma conta nova podia sortear um vilão como
-                // starter e perder aquele slot de time na hora, ficando com menos de
-                // MAX_TEAM_SIZE personagens jogáveis.
-                val starterIds = cached
-                    .filter { it.category != CharacterCategory.VILAO.name }
-                    .sortedByDescending { it.countOfIssueAppearances }
-                    .take(Constants.STARTER_CHARACTER_COUNT)
-                    .map { it.comicVineId }
-                runCatching { userRepository.ensureStarterCharacters(uid, starterIds) }
-
-                // Migração única, rodada 13 (feedback 01/09: "tirar todos os viloes que
-                // conquistei pra eu começar do 0"). Roda logo depois dos starters -- mesmo
-                // padrão de "só mexe uma vez por conta" (a própria função é quem confere a
-                // flag antes de fazer qualquer coisa).
-                val villainIds = cached
-                    .filter { it.category == CharacterCategory.VILAO.name }
-                    .map { it.comicVineId }
-                runCatching { userRepository.runVillainResetOnceIfNeeded(uid, villainIds) }
-
-                // As duas migrações acima podem ter desbloqueado personagem (starter novo) --
-                // busca os estados de novo pra a coleção refletir isso sem precisar de outro evento.
-                userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(userStates)
-                recompute()
-            }
         }
     }
 
-    /**
-     * "Por partes": chamado quando o usuário rola até perto do fim da grade (ver
-     * CollectionActivity). Busca mais [Constants.LOAD_MORE_BATCH_TARGET] personagens Marvel
-     * novos e acrescenta ao cache -- a lista observada em [characters] cresce sozinha.
-     */
     fun loadMore() {
         if (isLoadingMore || !hasMore) return
         isLoadingMore = true
@@ -108,14 +99,6 @@ class CollectionViewModel(
         }
     }
 
-    /**
-     * Rodada 15, parte 40 (04/10/2026): busca ao vivo por nome na Comic Vine -- chamada pela
-     * Activity (CollectionActivity.scheduleRemoteSearchIfNeeded()) quando a busca local (sobre o
-     * que já está em cache) não encontra nada com esse nome. Um resultado encontrado não precisa
-     * de nenhum recompute() manual aqui -- ele entra no Room (characterRepository.searchRemote
-     * insere via dao.insertAll) e o Flow já observado em start() atualiza [characters] sozinho,
-     * que por sua vez já está sendo refiltrado pela Activity com a mesma searchQuery.
-     */
     fun searchRemote(query: String) {
         viewModelScope.launch {
             _remoteSearchState.value = Resource.Loading
@@ -123,7 +106,6 @@ class CollectionViewModel(
         }
     }
 
-    /** Puxar-para-atualizar: refaz a primeira leva com a Comic Vine. */
     fun refresh(uid: String) {
         viewModelScope.launch {
             _refreshState.value = Resource.Loading
@@ -133,7 +115,6 @@ class CollectionViewModel(
         }
     }
 
-    /** Chame depois de desbloquear um personagem (baú/boss) para a coleção refletir na hora. */
     fun refreshUserStatesOnly(uid: String) {
         viewModelScope.launch {
             userStates = runCatching { userRepository.getCharacterStates(uid) }.getOrDefault(userStates)

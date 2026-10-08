@@ -106,8 +106,7 @@ class TeamSelectionActivity : MainNavActivity() {
         }
         app.userRepository.currentUid?.let { viewModel.save(it) }
         startActivity(BattleActivity.newIntent(this, ids.toIntArray()))
-        // Transição nostálgica de tela escura em vez de corte seco (feedback do usuário 31/08:
-        // "acho que é mais nostálgico só ir pra tela preta com uma transição, tipo de gradient").
+
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 }

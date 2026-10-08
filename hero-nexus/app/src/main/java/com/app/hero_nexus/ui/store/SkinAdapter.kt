@@ -14,11 +14,14 @@ data class StoreSkinItem(
     val priceCoins: Int,
     val characterName: String,
     val characterImageUrl: String?,
-    val owned: Boolean
+    val owned: Boolean,
+
+    val equipped: Boolean
 )
 
 class SkinAdapter(
-    private val onBuy: (StoreSkinItem) -> Unit
+    private val onBuy: (StoreSkinItem) -> Unit,
+    private val onEquip: (StoreSkinItem) -> Unit
 ) : RecyclerView.Adapter<SkinAdapter.VH>() {
 
     private var items: List<StoreSkinItem> = emptyList()
@@ -45,9 +48,14 @@ class SkinAdapter(
             binding.textSkinName.text = item.skinName
 
             when {
-                item.owned -> {
-                    binding.buttonSkinAction.text = ctx.getString(R.string.skin_owned)
+                item.owned && item.equipped -> {
+                    binding.buttonSkinAction.text = ctx.getString(R.string.skin_equipped)
                     binding.buttonSkinAction.isEnabled = false
+                }
+                item.owned -> {
+
+                    binding.buttonSkinAction.text = ctx.getString(R.string.skin_equip)
+                    binding.buttonSkinAction.isEnabled = true
                 }
                 item.priceCoins == 0 -> {
                     binding.buttonSkinAction.text = ctx.getString(R.string.skin_free)
@@ -58,7 +66,13 @@ class SkinAdapter(
                     binding.buttonSkinAction.isEnabled = true
                 }
             }
-            binding.buttonSkinAction.setOnClickListener { if (!item.owned) onBuy(item) }
+            binding.buttonSkinAction.setOnClickListener {
+                if (item.owned) {
+                    if (!item.equipped) onEquip(item)
+                } else {
+                    onBuy(item)
+                }
+            }
         }
     }
 }

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 10 (01/09): pedido explicito do usuario ("nao tem aquela barra de carregando
-     bonitinha que vc mostrou"). Trocado o ProgressBar circular padrao do Material por uma
-     barra horizontal, com trilho escuro e preenchimento em degrade dourado/vermelho, animada
-     por codigo em MainActivity (ValueAnimator, 0 a 100) em vez do spinner indeterminado. -->
+
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">

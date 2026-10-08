@@ -11,7 +11,6 @@ import com.app.hero_nexus.ui.common.MainNavActivity
 import com.app.hero_nexus.util.visibleIf
 import kotlinx.coroutines.launch
 
-/** Seção 21 do documento — skins são só cosméticas (regra 4 / seção 21.1: não alteram atributos). */
 class SkinStoreActivity : MainNavActivity() {
 
     private lateinit var binding: ActivityStoreBinding
@@ -31,7 +30,7 @@ class SkinStoreActivity : MainNavActivity() {
         )
         setupBottomNav(binding.bottomNav, R.id.nav_store)
 
-        adapter = SkinAdapter { item -> buySkin(item) }
+        adapter = SkinAdapter(onBuy = { item -> buySkin(item) }, onEquip = { item -> equipSkin(item) })
         binding.recyclerSkins.layoutManager = LinearLayoutManager(this)
         binding.recyclerSkins.adapter = adapter
 
@@ -47,6 +46,9 @@ class SkinStoreActivity : MainNavActivity() {
 
             val unlocked = all.filter { states[it.comicVineId]?.unlocked == true }
             val items = unlocked.flatMap { character ->
+
+                val equippedId = states[character.comicVineId]?.equippedSkinId
+                    ?: "${character.comicVineId}_classic"
                 SkinCatalog.forCharacter(character.comicVineId, character.name).map { skin ->
                     StoreSkinItem(
                         skinId = skin.id,
@@ -55,7 +57,8 @@ class SkinStoreActivity : MainNavActivity() {
                         priceCoins = skin.priceCoins,
                         characterName = character.name,
                         characterImageUrl = character.imageUrl,
-                        owned = owned.contains(skin.id)
+                        owned = owned.contains(skin.id) || skin.isFree,
+                        equipped = skin.id == equippedId
                     )
                 }
             }
@@ -76,6 +79,17 @@ class SkinStoreActivity : MainNavActivity() {
             } else {
                 Toast.makeText(this@SkinStoreActivity, R.string.skin_not_enough_coins, Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun equipSkin(item: StoreSkinItem) {
+        val uid = app.userRepository.currentUid ?: return
+        lifecycleScope.launch {
+            runCatching { app.userRepository.equipSkin(uid, item.characterId, item.skinId) }
+                .onFailure {
+                    Toast.makeText(this@SkinStoreActivity, R.string.error_generic, Toast.LENGTH_SHORT).show()
+                }
+            loadSkins()
         }
     }
 
