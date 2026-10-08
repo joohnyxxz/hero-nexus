@@ -18,24 +18,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 
-/**
- * Fonte única dos dados de personagens: busca na Comic Vine e guarda em cache local (Room),
- * seguindo a seção 26 do documento ("evitar consultar a API repetidamente sem necessidade").
- *
- * Rodada 15, parte 13 (30/09/2026): listagem "por partes" de novo (pedido do usuário, depois de
- * confirmar que a base simples sem paginação funciona), desta vez com 2 decisões deliberadas pra
- * não repetir os problemas das partes 5-11:
- * 1. O cursor de paginação ([nextOffset]/[totalResults]) é só uma variável em memória, NÃO
- *    persistida em SharedPreferences -- foi exatamente um parâmetro extra de SharedPreferences no
- *    construtor que ficou fora de sincronia com quem cria este repositório (HeroNexusApp.kt) e
- *    quebrou a compilação nas partes 5-11 sem ninguém perceber (ver histórico). Reabrir o app
- *    recomeça a paginação do zero -- é uma perda pequena (o catálogo da Comic Vine quase não muda)
- *    e elimina essa classe inteira de bug.
- * 2. Nenhuma UI (adapter/RecyclerView) é mexida por este repositório -- ele só grava no Room. Quem
- *    mostra "carregando mais" é uma ProgressBar comum no layout (ver CollectionActivity), não um
- *    item dentro da lista -- elimina a outra causa raiz real já achada (IllegalStateException por
- *    mexer no adapter dentro de um callback de scroll).
- */
 class CharacterRepository(
     private val api: ComicVineApi,
     private val dao: CharacterDao
@@ -44,42 +26,18 @@ class CharacterRepository(
     private var totalResults = Int.MAX_VALUE
     private var exhausted = false
 
-    /** Rodada 15, parte 58 (07/10/2026): correção de bug real achado por Logcat -- MainActivity
-     * (prefetch da splash) e CollectionViewModel.start() chamam ensureFirstBatch() quase ao
-     * mesmo tempo quando o cache está vazio (ex.: logo após a migração do Room pra versão 3,
-     * que zera o cache via fallbackToDestructiveMigration()). Sem essa trava, os DOIS disparavam
-     * sua PRÓPRIA chamada pesada e idêntica à Comic Vine; quando a splash desistia depois de
-     * SPLASH_PREFETCH_TIMEOUT_MS (6s) e cancelava a sua, a tela de Coleção começava OUTRA do
-     * zero -- e foi exatamente essa SEGUNDA chamada concorrente que ficou travada até o teto de
-     * BATCH_LOAD_TIMEOUT_MILLIS (25s) sem resposta nenhuma da Comic Vine, deixando a Coleção
-     * vazia pro usuário (2 logs reais mostram os dois GETs idênticos, um cancelado a ~6s, o
-     * outro a ~25s em ponto). `repositoryScope` é um escopo PRÓPRIO, não ligado a nenhuma
-     * Activity/ViewModel -- assim, quem chamar enquanto já existe uma busca em andamento só
-     * "pega carona" no resultado dela (nunca dispara uma segunda requisição), e a splash
-     * desistindo/cancelando o SEU lado nunca mata o download que já estava a caminho. */
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val firstBatchMutex = Mutex()
     private var inFlightFirstBatch: Deferred<Resource<Unit>>? = null
 
-    /** Ainda vale a pena tentar buscar mais personagens Marvel (scroll/"carregar mais")? */
     val hasMore: Boolean get() = !exhausted
 
-    /** Fluxo reativo da coleção em cache — a UI observa isso e é atualizada sozinha após um carregamento. */
     fun observeCollection(): Flow<List<CharacterEntity>> = dao.observeAll()
 
     suspend fun getCached(id: Int): CharacterEntity? = dao.getById(id)
 
     suspend fun getAllCached(): List<CharacterEntity> = dao.getAllOnce()
 
-    /**
-     * Rodada 15, parte 57 (07/10/2026): correção do recurso "poderes" que o usuário reportou
-     * nunca funcionar. O recurso PLURAL da Comic Vine (`characters/`, usado em fetchBatch() pra
-     * popular o cache inteiro) pede o campo `powers` no field_list, mas raramente devolve algo
-     * nele -- particularidade conhecida da API (o campo só vem preenchido de forma confiável no
-     * recurso SINGULAR, `character/4005-{id}/`). Por isso a tela de detalhe chama isto na hora
-     * de abrir, SÓ quando o cache já veio sem poderes -- uma chamada extra, e só então --, e o
-     * resultado fica salvo no Room (dao.updatePowers) pra não precisar buscar de novo depois.
-     */
     suspend fun fetchAndCachePowers(id: Int): List<String>? = try {
         val response = api.getCharacterDetail(id)
         val powers = response.results?.powers?.mapNotNull { it.name }
@@ -89,22 +47,13 @@ class CharacterRepository(
         null
     }
 
-    /**
-     * Garante que a PRIMEIRA leva ([Constants.INITIAL_PAGE_TARGET] personagens Marvel) esteja
-     * pronta -- rápido de propósito, pra splash/tela pintarem logo com dado de verdade. Só bate
-     * na rede se o cache estiver vazio ou "velho" (> [Constants.CACHE_TTL_MILLIS]).
-     */
     suspend fun ensureFirstBatch(): Resource<Unit> {
         val count = dao.count()
         val lastCached = dao.lastCachedAt() ?: 0L
         val isStale = System.currentTimeMillis() - lastCached > Constants.CACHE_TTL_MILLIS
-        // Rodada 15, parte 30: se tivermos menos que a meta inicial, buscamos mais mesmo que o 
-        // cache não esteja expirado, para evitar que a lista fique "pobre" (ex: só 5 cards).
+
         if (count >= Constants.INITIAL_PAGE_TARGET && !isStale) return Resource.Success(Unit)
 
-        // Coalescimento (ver comentário em repositoryScope acima): se já existe uma busca da
-        // primeira leva em andamento, todo mundo que chamar ensureFirstBatch() nesse meio tempo
-        // espera o MESMO resultado em vez de disparar outra chamada de rede idêntica.
         val replace = count == 0 || isStale
         val deferred = firstBatchMutex.withLock {
             inFlightFirstBatch?.takeIf { it.isActive } ?: repositoryScope.async {
@@ -118,18 +67,9 @@ class CharacterRepository(
         return deferred.await()
     }
 
-    /**
-     * Puxar-para-atualizar: busca a primeira leva de novo do zero e só troca o cache se a rede
-     * responder com sucesso -- se falhar, o que já estava na coleção continua exatamente como
-     * estava, sem piscar pra tela vazia.
-     */
     suspend fun refreshFromNetwork(): Resource<Unit> =
-        fetchBatch(target = Constants.INITIAL_PAGE_TARGET, replace = true)
+        fetchBatch(target = Constants.INITIAL_PAGE_TARGET, replace = false)
 
-    /**
-     * "Por partes": busca mais uma leva ([Constants.LOAD_MORE_BATCH_TARGET] personagens Marvel
-     * novos) e ACRESCENTA ao cache existente -- a lista na tela cresce, nada é substituído.
-     */
     suspend fun loadMore(): Resource<Unit> {
         if (exhausted) return Resource.Success(Unit)
         return fetchBatch(target = Constants.LOAD_MORE_BATCH_TARGET, replace = false)
@@ -140,31 +80,21 @@ class CharacterRepository(
             nextOffset = 0
             totalResults = Int.MAX_VALUE
             exhausted = false
+        } else if (nextOffset == 0) {
+
+            val count = dao.count()
+            if (count > 0) {
+
+                nextOffset = count.coerceAtLeast(nextOffset)
+            }
         }
 
-        // Rodada 15, parte 14 (30/09/2026): correção de um bug real achado por leitura de
-        // código (não chute) -- o teto de tempo do CONJUNTO inteiro (BATCH_LOAD_TIMEOUT_MILLIS)
-        // era menor que o teto de UMA chamada só (readTimeout/connectTimeout do OkHttp, 20s
-        // cada, em NetworkModule.kt). Numa rede mais lenta, uma única chamada já estourava o
-        // teto do conjunto todo e o código antigo descartava TUDO que já tinha sido buscado até
-        // ali, mostrando erro mesmo quando já existiam personagens novos prontos -- exatamente o
-        // sintoma relatado ("carregar mais" sempre falhando, embora "puxar pra atualizar"
-        // funcionasse, porque essa primeira leva normalmente precisa de bem menos chamadas).
-        //
-        // `result`/`requests` agora vivem FORA do bloco de timeout: se o tempo acabar (ou uma
-        // chamada específica falhar) no meio do laço, o que já foi buscado nas chamadas
-        // anteriores continua valendo e é salvo -- só devolvemos erro de verdade quando NADA foi
-        // conseguido.
         val result = mutableListOf<CharacterDto>()
         var requests = 0
 
         try {
             withTimeoutOrNull(Constants.BATCH_LOAD_TIMEOUT_MILLIS) {
-                // A Comic Vine costuma IGNORAR o filter=publisher:X no recurso /characters/
-                // (falha conhecida da API, documentada desde a segunda rodada) -- por isso
-                // SEMPRE filtramos por publisher no cliente também, o que pode descartar boa
-                // parte de cada página; daí o teto ser de REQUISIÇÕES por leva, não só de
-                // personagens reunidos.
+
                 while (result.size < target &&
                     nextOffset < totalResults &&
                     requests < Constants.MAX_REQUESTS_PER_BATCH
@@ -173,17 +103,15 @@ class CharacterRepository(
                     requests++
                     totalResults = response.numberOfTotalResults
                     if (response.results.isEmpty()) break
-                    result += response.results.filter { 
-                        it.publisher?.id == Constants.MARVEL_PUBLISHER_ID || 
-                        it.publisher?.name?.contains("Marvel", ignoreCase = true) == true 
+                    result += response.results.filter {
+                        it.publisher?.id == Constants.MARVEL_PUBLISHER_ID ||
+                        it.publisher?.name?.contains("Marvel", ignoreCase = true) == true
                     }
                     nextOffset += Constants.CHARACTERS_PAGE_SIZE
                 }
             }
         } catch (e: Exception) {
-            // Uma exceção de verdade (não timeout) no meio do laço: o que já foi reunido nas
-            // chamadas anteriores continua em `result` e será salvo do mesmo jeito abaixo. Só
-            // devolvemos erro se não sobrou NADA pra mostrar.
+
             if (result.isEmpty()) {
                 return Resource.Error(e.message ?: "Falha ao buscar personagens da Comic Vine", e)
             }
@@ -193,20 +121,6 @@ class CharacterRepository(
             return Resource.Error("A Comic Vine demorou demais pra responder. Tente de novo em instantes.")
         }
 
-        // Rodada 15, parte 17 (30/09/2026): removida a trava automática que existia aqui
-        // ("uma leva que não achou nenhum Marvel novo marca exhausted = true"). Ela causava um
-        // bug real: como o filtro de publisher da Comic Vine é furado, é normal e ESPERADO que
-        // uma leva de "carregar mais" ocasionalmente não encontre nenhum Marvel dentro do
-        // orçamento de MAX_REQUESTS_PER_BATCH (uma faixa mais pobre do catálogo) sem isso
-        // significar que o catálogo acabou -- mas a trava marcava exhausted = true mesmo assim,
-        // e como CollectionViewModel.loadMore() checa `hasMore` ANTES de sequer emitir
-        // Resource.Loading, todo scroll seguinte virava um no-op silencioso: nenhuma requisição,
-        // nenhuma barra de carregamento, nenhum toast, nenhum log -- exatamente o "para de
-        // carregar sem erro nenhum" relatado. `exhausted` agora só fica `true` quando a Comic
-        // Vine de fato disse que não há mais nada (nextOffset >= totalResults, o total BRUTO de
-        // todos os publishers) -- o único caso em que insistir de verdade não adiantaria nada.
-        // Uma leva "vazia" nessa faixa apenas devolve sucesso com 0 personagens novos; o usuário
-        // pode simplesmente rolar mais um pouco pra tentar a próxima faixa do catálogo.
         if (nextOffset >= totalResults) exhausted = true
 
         val entities = result
@@ -222,16 +136,6 @@ class CharacterRepository(
         return Resource.Success(Unit)
     }
 
-    /**
-     * Rodada 15, parte 40 (04/10/2026): busca ao vivo por NOME na Comic Vine (filter=name:X),
-     * usada pela barra de pesquisa da Coleção quando a lista já carregada não tem nenhum
-     * personagem com esse nome (ver CollectionActivity.scheduleRemoteSearchIfNeeded()).
-     * Diferente de fetchBatch() (que pagina por ranking global de aparições e só acha Marvel de
-     * quem calhar de aparecer na faixa já escaneada), esta busca é direta por nome -- acha
-     * qualquer personagem Marvel que exista no catálogo da Comic Vine, independente da posição
-     * dele nesse ranking. O resultado (quando é Marvel de verdade) é inserido no cache igual a
-     * um loadMore() -- fica salvo pra próxima vez, nunca é descartado depois da busca.
-     */
     suspend fun searchRemote(query: String): Resource<Int> {
         val trimmed = query.trim()
         if (trimmed.isEmpty()) return Resource.Success(0)
@@ -240,27 +144,12 @@ class CharacterRepository(
                 api.searchCharacters(filter = "name:$trimmed")
             } ?: return Resource.Error("A Comic Vine demorou demais pra responder essa busca. Tente de novo.")
 
-            // Rodada 15, parte 44 (04/10/2026): ate aqui, um status_code de erro vindo da
-            // propria Comic Vine (ex: chave invalida, limite de requisicoes, filtro mal
-            // formado) nunca era conferido -- nem aqui nem em fetchBatch() (mesmo ponto cego ja
-            // existia la, so nunca deu pra notar porque a leva por popularidade normalmente
-            // funciona). Isso fazia um erro de API ficar DISFARCADO de "busquei e nao achei
-            // nenhum Marvel com esse nome" (response.results simplesmente vem vazio nos dois
-            // casos), que e exatamente o toast que o usuario via mesmo quando o problema real
-            // era a chamada em si ter falhado, nao a busca ter sido mal sucedida. A Comic Vine
-            // usa status_code = 1 pra "OK" -- qualquer outro valor agora vira um erro de
-            // verdade, visivel, em vez de cair direto no filtro de publisher como se tivesse
-            // vindo uma lista vazia de respostas normais.
             if (response.statusCode != 1) {
                 return Resource.Error(
                     "Comic Vine recusou a busca (status ${response.statusCode}: ${response.error})."
                 )
             }
 
-            // Mesmo critério de filtro client-side já usado em fetchBatch() -- o filtro
-            // publisher:X do lado do servidor da própria Comic Vine é furado (bug documentado
-            // desde a segunda rodada), então searchCharacters() também devolve qualquer
-            // publisher cujo nome bateu, não só Marvel.
             val entities = response.results
                 .filter {
                     it.publisher?.id == Constants.MARVEL_PUBLISHER_ID ||
@@ -306,8 +195,4 @@ class CharacterRepository(
         )
     }
 
-    // Rodada 15, parte 58 (07/10/2026): removido o recálculo de "top 3" (refreshTopRankedFlags)
-    // que rodava aqui a cada leva -- a raridade LENDARIO voltou a ser limiar fixo de OVR (ver
-    // Character.rarity / Rarity.fromPower), então essa passada extra pelo cache inteiro + write
-    // no Room a cada fetchBatch()/searchRemote() não serve mais pra nada, só consumia tempo.
 }

@@ -12,7 +12,9 @@ import com.app.hero_nexus.data.model.BattleStats
 import com.app.hero_nexus.data.model.Character
 import com.app.hero_nexus.databinding.ActivityCharacterDetailBinding
 import com.app.hero_nexus.databinding.ItemAttributeRowBinding
+import com.app.hero_nexus.ui.battle.BattleView
 import com.app.hero_nexus.ui.compare.CompareActivity
+import com.app.hero_nexus.util.applyStatusBarTopInset
 import com.app.hero_nexus.util.loadCharacterHeaderImage
 import com.app.hero_nexus.util.visibleIf
 import com.google.android.material.chip.Chip
@@ -36,15 +38,21 @@ class CharacterDetailActivity : AppCompatActivity() {
         binding = ActivityCharacterDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.backBar.root.applyStatusBarTopInset()
         binding.backBar.buttonBack.setOnClickListener { finish() }
 
         val characterId = intent.getIntExtra(EXTRA_CHARACTER_ID, -1)
+
+        binding.progressLoading.visibleIf(true)
+        binding.scrollContent.visibleIf(false)
         viewModel.character.observe(this) { character ->
-            if (character != null) render(character)
+            if (character != null) {
+                render(character)
+                binding.progressLoading.visibleIf(false)
+                binding.scrollContent.visibleIf(true)
+            }
         }
-        // "Sobre" e poderes são exibidos à parte do resto (ver comentário no ViewModel):
-        // aparecem em inglês instantaneamente (cache local) e trocam pra PT-BR quando a
-        // tradução chega, sem travar a tela.
+
         viewModel.aboutText.observe(this) { binding.textDescription.text = it }
         viewModel.powers.observe(this) { renderPowers(it) }
         viewModel.load(characterId, app.userRepository.currentUid)
@@ -62,6 +70,8 @@ class CharacterDetailActivity : AppCompatActivity() {
         }
 
         binding.textLockedHint.visibleIf(!character.unlocked)
+
+        binding.textNoSpecificSprite.visibleIf(!BattleView.hasSpecificSprite(character.name))
 
         renderAttributes(character.stats)
 

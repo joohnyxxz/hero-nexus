@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Inter (SIL OFL 1.1, The Inter Project Authors) — fonte padrão de leitura do app a partir da
-     décima quinta rodada (29/09/2026, parte 4): pedido do usuário, "combina com" o novo conjunto
-     de ícones Heroicons Outline. Um único arquivo com 4 pesos estáticos: o Android escolhe o mais
-     próximo pra cada android:textStyle/peso pedido (bold aponta pro peso 700 de verdade, em vez de
-     negrito sintético em cima do Regular). Não substitui o Bebas Neue: aquele continua reservado
-     só pros pontos de "impacto" já estabelecidos (rodada 13) — título de tela, wordmark, cabeçalho
-     do card de personagem, tela de resultado de batalha. -->
+
 <font-family xmlns:android="http://schemas.android.com/apk/res/android">
     <font
         android:font="@font/inter_regular"

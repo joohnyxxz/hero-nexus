@@ -1,6 +1,7 @@
 package com.app.hero_nexus.ui.common
 
 import android.content.Intent
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.StringRes
@@ -14,14 +15,11 @@ import com.app.hero_nexus.ui.collection.CollectionActivity
 import com.app.hero_nexus.ui.missions.MissionsActivity
 import com.app.hero_nexus.ui.store.SkinStoreActivity
 import com.app.hero_nexus.ui.team.TeamSelectionActivity
+import com.app.hero_nexus.util.applyStatusBarTopInset
 import com.app.hero_nexus.util.formatCoins
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
-/**
- * Base para as 5 telas principais (Coleção / Time / Missões / Baús / Loja), que compartilham
- * a mesma barra superior (moedas/nível/sair) e a mesma navegação inferior.
- */
 abstract class MainNavActivity : AppCompatActivity() {
 
     protected val app: HeroNexusApp get() = application as HeroNexusApp
@@ -34,6 +32,8 @@ abstract class MainNavActivity : AppCompatActivity() {
         @StringRes titleRes: Int
     ) {
         textTitle.setText(titleRes)
+
+        (textTitle.parent as? View)?.applyStatusBarTopInset()
         buttonLogout.setOnClickListener {
             app.userRepository.logout()
             startActivity(

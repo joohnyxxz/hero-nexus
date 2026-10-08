@@ -17,7 +17,6 @@ import com.app.hero_nexus.util.visibleIf
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-/** Seção 18 do documento — baús de recompensa. */
 class ChestsActivity : MainNavActivity() {
 
     private lateinit var binding: ActivityChestsBinding
@@ -70,10 +69,7 @@ class ChestsActivity : MainNavActivity() {
                 return@launch
             }
             val reward = rollReward(uid, type)
-            // Rodada 10 (01/09): applyReward() não tinha try/catch nenhum -- uma falha aqui (ex:
-            // regra do Firestore) derrubava a coroutine inteira sem aviso pro usuário. Agora só
-            // avisa e segue mostrando o diálogo (o baú já foi consumido, então precisa dar o
-            // feedback mesmo se o crédito da recompensa falhar).
+
             runCatching { applyReward(uid, reward) }.onFailure { e ->
                 android.util.Log.e("ChestsActivity", "Falha ao aplicar recompensa do baú", e)
                 Toast.makeText(

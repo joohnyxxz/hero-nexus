@@ -2,12 +2,6 @@ package com.app.hero_nexus.data.remote
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * Envelope padrão de todas as respostas da Comic Vine API.
- * https://comicvine.gamespot.com/api/documentation
- */
-/** Resposta do recurso SINGULAR ("character/4005-{id}/") -- `results` aqui é UM objeto, não
- * uma lista (diferente de ComicVineListResponseDto, usado pro recurso plural "characters/"). */
 data class ComicVineDetailResponseDto(
     @SerializedName("status_code") val statusCode: Int,
     @SerializedName("error") val error: String,

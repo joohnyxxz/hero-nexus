@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Hero Nexus é sempre dark (ver values/themes.xml, que usa parent "Theme.Material3.Dark.NoActionBar"
-         em vez de "DayNight"), então não há necessidade de overrides específicos para o modo noturno
-         do sistema. Este arquivo existe apenas para não deixar a pasta values-night vazia/quebrada. -->
+
 </resources>

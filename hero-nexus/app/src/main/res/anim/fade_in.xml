@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Transicao nostalgica de tela escura (feedback do usuario 31/08: "mais nostalgico so ir pra
-     tela preta com uma transicao, tipo de gradient, e pra sair tambem"), usada tanto ao entrar
-     quanto ao sair da batalha, em vez de um corte seco entre telas. -->
+
 <alpha xmlns:android="http://schemas.android.com/apk/res/android"
     android:duration="380"
     android:fromAlpha="0.0"

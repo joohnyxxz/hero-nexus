@@ -74,11 +74,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Busca uma foto de fundo tematica via Pexels (BackgroundRepository) pra essa tela deixar de
-     * ser so cor solida. Se nao tiver chave configurada ou a busca falhar, simplesmente nao seta
-     * nada e o fundo continua o azul-marinho de sempre -- nunca quebra a tela de login.
-     */
     private fun loadThematicBackground() {
         lifecycleScope.launch {
             val app = application as HeroNexusApp

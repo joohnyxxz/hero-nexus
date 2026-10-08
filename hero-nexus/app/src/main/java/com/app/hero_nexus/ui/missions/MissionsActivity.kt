@@ -13,16 +13,6 @@ import com.app.hero_nexus.databinding.ActivityMissionsBinding
 import com.app.hero_nexus.ui.common.MainNavActivity
 import kotlinx.coroutines.launch
 
-/**
- * Seção 22 do documento — missões simples para o MVP.
- *
- * Rodada 10 (01/09): antes, qualquer falha ao ler "missions_catalog" do Firestore (ex: regras
- * não publicadas para essa coleção -- ver SETUP.md) era engolida em silêncio por um
- * runCatching{}.getOrDefault(...), então a tela sempre mostrava as 4 missões padrão sem
- * nenhum sinal de que o catálogo real nunca carregou nem foi semeado. Agora qualquer falha
- * aqui (catálogo ou resgate de recompensa) aparece num Toast com a mensagem de erro real, pra
- * dar pra diagnosticar sem precisar de Logcat.
- */
 class MissionsActivity : MainNavActivity() {
 
     private lateinit var binding: ActivityMissionsBinding
@@ -74,8 +64,21 @@ class MissionsActivity : MainNavActivity() {
             }
 
             val missions = catalog.map { def ->
-                Mission(def, progressMap[def.id] ?: MissionProgress(id = def.id))
-            }
+                var progress = progressMap[def.id] ?: MissionProgress(id = def.id)
+
+                val now = System.currentTimeMillis()
+                val shouldReset = when (def.category) {
+                    "daily" -> MissionCatalog.isDifferentDay(progress.lastResetAt, now)
+                    "weekly" -> MissionCatalog.isDifferentWeek(progress.lastResetAt, now)
+                    else -> false
+                }
+
+                if (shouldReset) {
+                    progress = MissionProgress(id = def.id, lastResetAt = now)
+                }
+
+                Mission(def, progress)
+            }.sortedWith(compareBy({ it.progress.claimed }, { it.definition.category != "daily" }))
             adapter.submitList(missions)
         }
     }

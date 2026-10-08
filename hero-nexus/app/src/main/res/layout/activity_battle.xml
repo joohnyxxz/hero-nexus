@@ -14,8 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- HUD superior -->
     <LinearLayout
+        android:id="@+id/layoutHudTop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -57,8 +57,6 @@
                 tools:progress="80" />
         </LinearLayout>
 
-        <!-- Rodada 13 (feedback 01/09: "sem contador de quantos inimigos" , mais nostálgico
-             sem esse número piscando, o jogador só sente a dificuldade jogando). -->
         <ImageView
             android:layout_width="16dp"
             android:layout_height="16dp"
@@ -76,7 +74,6 @@
             tools:text="120" />
     </LinearLayout>
 
-    <!-- Barra de vida do chefe -->
     <LinearLayout
         android:id="@+id/layoutBossHealth"
         android:layout_width="260dp"
@@ -97,10 +94,8 @@
             android:textStyle="bold"
             tools:text="DUENDE VERDE" />
 
-        <!-- Rodada 15, parte 52: barra de vida do chefe removida de proposito - pedido explicito do usuario ("da mais suspense nao saber quanto de vida o vilao tem"). O nome continua aparecendo, so a barra que sumiu. -->
     </LinearLayout>
 
-    <!-- Banner de eventos (troca de personagem, chefe chegando, etc.) -->
     <TextView
         android:id="@+id/textBanner"
         android:layout_width="wrap_content"
@@ -116,7 +111,6 @@
         tools:text="DUENDE VERDE DERROTADO"
         tools:visibility="visible" />
 
-    <!-- Joystick virtual -->
     <FrameLayout
         android:id="@+id/joystickArea"
         android:layout_width="@dimen/joystick_size"
@@ -137,7 +131,6 @@
             android:background="@drawable/bg_joystick_knob" />
     </FrameLayout>
 
-    <!-- Botão de ataque -->
     <FrameLayout
         android:id="@+id/buttonAttack"
         android:clickable="true"
@@ -155,8 +148,6 @@
 
     </FrameLayout>
 
-    <!-- Botão de especial: carrega com o dano causado (barrinha fina embaixo), guarda até 2 usos
-         prontos (pips ao lado): seção "especial", feedback 31/08. -->
     <FrameLayout
         android:id="@+id/buttonSpecial"
         android:clickable="true"
@@ -199,8 +190,6 @@
             android:background="@drawable/bg_special_pip" />
     </LinearLayout>
 
-    <!-- Botão de comida: só aparece quando tem algo guardado no slot. O jogador decide a hora
-         de comer, em vez de curar automaticamente ao quebrar a caixa/barril. -->
     <FrameLayout
         android:id="@+id/buttonFood"
         android:clickable="true"
@@ -221,8 +210,6 @@
             android:layout_gravity="center"
             android:src="@drawable/ic_food" />
 
-        <!-- Contador de cargas guardadas (0-3, rodada 13: "o slot para cura seria de 3
-             comidinhas"). -->
         <TextView
             android:id="@+id/textFoodCount"
             android:layout_width="20dp"
@@ -238,9 +225,6 @@
             tools:text="3" />
     </FrameLayout>
 
-    <!-- Overlay de carregamento: tela escura em degradê (sem spinner/texto: feedback 31/08:
-         "mais nostálgico só ir pra tela preta com uma transição, tipo de gradient") que some com
-         um fade suave assim que a arena está pronta (ver BattleActivity.dismissLoadingOverlay). -->
     <FrameLayout
         android:id="@+id/loadingOverlay"
         android:layout_width="match_parent"
@@ -249,11 +233,6 @@
         android:clickable="true"
         android:focusable="true" />
 
-    <!-- Flash de miniboss derrotado: tela preta rápida, luta continua por baixo (feedback
-         01/09: "sabe em golden axe? vc mata um vilão, aparece uma tela preta mas ainda
-         continua na batalha, acho que deveria ser mais desafiante"). Sem clickable/focusable ,
-         diferente do loadingOverlay, esse não deve bloquear toque nenhum instante a mais que o
-         necessário, o jogo tá rolando por baixo o tempo todo. -->
     <FrameLayout
         android:id="@+id/minibossFlashOverlay"
         android:layout_width="match_parent"

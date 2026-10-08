@@ -1,42 +1,60 @@
 package com.app.hero_nexus.data.model
 
-/**
- * Definição de uma missão. Vive no Firestore, coleção "missions_catalog" (seção 22 do documento) —
- * é um catálogo global (igual para todo mundo), não um dado por usuário.
- * Precisa de valores padrão em todo campo para o Firestore conseguir desserializar (toObject).
- */
+import java.util.Calendar
+
 data class MissionDefinition(
     val id: String = "",
     val title: String = "",
     val target: Int = 0,
     val rewardXp: Int = 0,
-    val rewardCoins: Int = 0
+    val rewardCoins: Int = 0,
+    val category: String = "daily"
 )
 
-/** Progresso do jogador numa missão, guardado em users/{uid}/missions/{id}. */
 data class MissionProgress(
     val id: String = "",
     val progress: Int = 0,
     val completed: Boolean = false,
-    val claimed: Boolean = false
+    val claimed: Boolean = false,
+    val lastResetAt: Long = 0
 )
 
-/** Junção de definição + progresso, pronta para a UI. */
 data class Mission(
     val definition: MissionDefinition,
     val progress: MissionProgress
 )
 
-/**
- * Valores usados apenas para SEMEAR o Firestore (coleção "missions_catalog") na primeira vez que o
- * catálogo é lido vazio. Depois de semeado, o catálogo real mora no banco — o app nunca mais lê
- * essa lista em runtime (ver UserRepository.getMissionCatalog).
- */
 object MissionCatalog {
     val DEFAULTS = listOf(
-        MissionDefinition("kill_20_enemies", "Derrote 20 inimigos", target = 20, rewardXp = 100, rewardCoins = 200),
-        MissionDefinition("break_10_crates", "Quebre 10 caixas", target = 10, rewardXp = 0, rewardCoins = 150),
-        MissionDefinition("complete_1_stage", "Complete uma fase", target = 1, rewardXp = 250, rewardCoins = 0),
-        MissionDefinition("defeat_1_boss", "Derrote um vilão", target = 1, rewardXp = 500, rewardCoins = 0)
+
+        MissionDefinition("daily_kill_enemies_t1", "Eliminador I: Derrote 15 inimigos", target = 15, rewardXp = 80, rewardCoins = 40, category = "daily"),
+        MissionDefinition("daily_break_crates_t1", "Saqueador I: Quebre 8 caixas", target = 8, rewardXp = 40, rewardCoins = 80, category = "daily"),
+        MissionDefinition("daily_complete_stage_t1", "Explorador I: Complete 1 fase", target = 1, rewardXp = 100, rewardCoins = 50, category = "daily"),
+
+        MissionDefinition("daily_kill_enemies_t2", "Eliminador II: Derrote 40 inimigos", target = 40, rewardXp = 200, rewardCoins = 100, category = "daily"),
+        MissionDefinition("daily_break_crates_t2", "Saqueador II: Quebre 20 caixas", target = 20, rewardXp = 100, rewardCoins = 200, category = "daily"),
+
+        MissionDefinition("weekly_boss_hunter_t1", "Caçador de Lendas I: Derrote 3 chefões", target = 3, rewardXp = 800, rewardCoins = 400, category = "weekly"),
+        MissionDefinition("weekly_mass_slayer_t1", "Guerreiro I: Derrote 150 inimigos", target = 150, rewardXp = 600, rewardCoins = 300, category = "weekly"),
+
+        MissionDefinition("weekly_boss_hunter_t2", "Caçador de Lendas II: Derrote 10 chefões", target = 10, rewardXp = 2000, rewardCoins = 1000, category = "weekly"),
+        MissionDefinition("weekly_mass_slayer_t2", "Guerreiro II: Derrote 500 inimigos", target = 500, rewardXp = 1500, rewardCoins = 750, category = "weekly"),
+        MissionDefinition("weekly_treasure_seeker_t1", "Caça-Tesouros: Quebre 80 caixas", target = 80, rewardXp = 400, rewardCoins = 800, category = "weekly")
     )
+
+    fun isDifferentDay(last: Long, now: Long): Boolean {
+        if (last == 0L) return false
+        val calLast = Calendar.getInstance().apply { timeInMillis = last }
+        val calNow = Calendar.getInstance().apply { timeInMillis = now }
+        return calLast.get(Calendar.DAY_OF_YEAR) != calNow.get(Calendar.DAY_OF_YEAR) ||
+                calLast.get(Calendar.YEAR) != calNow.get(Calendar.YEAR)
+    }
+
+    fun isDifferentWeek(last: Long, now: Long): Boolean {
+        if (last == 0L) return false
+        val calLast = Calendar.getInstance().apply { timeInMillis = last }
+        val calNow = Calendar.getInstance().apply { timeInMillis = now }
+        return calLast.get(Calendar.WEEK_OF_YEAR) != calNow.get(Calendar.WEEK_OF_YEAR) ||
+                calLast.get(Calendar.YEAR) != calNow.get(Calendar.YEAR)
+    }
 }

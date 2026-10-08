@@ -13,7 +13,6 @@ import com.app.hero_nexus.util.loadCharacterImage
 import com.app.hero_nexus.util.visibleIf
 import com.google.android.material.card.MaterialCardView
 
-/** Grade de personagens JÁ DESBLOQUEADOS para montar o time (seção 11). */
 class TeamCharacterAdapter(
     private val isSelected: (Character) -> Boolean,
     private val onClick: (Character) -> Unit
@@ -36,9 +35,6 @@ class TeamCharacterAdapter(
             binding.progressXp.progress = (character.xp % 1000) / 10
             binding.textRarity.text = character.rarity.name
 
-            // Rodada 12 (01/09): mesmo header colorido por raridade do card da Colecao
-            // (CharacterAdapter.kt) -- esse card e literalmente o mesmo layout, ficava
-            // inconsistente (header branco sem cor) se so um dos dois adapters tintasse.
             val ctx = binding.root.context
             val rarityColorRes = when (character.rarity) {
                 Rarity.COMUM -> R.color.rarity_common

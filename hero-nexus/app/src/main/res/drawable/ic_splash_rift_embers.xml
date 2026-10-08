@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 15, parte 68 (07/10/2026): faíscas soltas, separadas num ImageView próprio (igual aos
-     grupos A e B das rachaduras, ver ic_splash_rift.xml) pra poderem girar/pulsar num ritmo
-     diferente dos traços em MainActivity.kt, reforçando a sensação de vida própria em vez de um
-     disco rígido só. -->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="480dp"
     android:height="480dp"

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -26,25 +25,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// Rodada 15, parte 65 (07/10/2026): quatro valores novos (RARITY_*) pro pedido do usuário de
-// conseguir filtrar a listagem por raridade, direto -- antes só dava pra filtrar por
-// estado (desbloqueado/bloqueado) ou alinhamento (herói/anti-herói/vilão).
 private enum class FilterType {
     ALL, UNLOCKED, LOCKED, HEROES, ANTIHEROES, VILLAINS,
     RARITY_COMUM, RARITY_RARO, RARITY_EPICO, RARITY_LENDARIO
 }
-private enum class SortType { POWER_DESC, POWER_ASC, NAME }
 
-/** Quantos itens de folga antes do fim da lista visível já disparam a busca da próxima leva. */
 private const val LOAD_MORE_THRESHOLD = 6
 
-/** Rodada 15, parte 40 (04/10/2026): tempo que a barra de pesquisa espera depois da última
- * tecla digitada antes de considerar buscar ao vivo na Comic Vine -- evita disparar uma
- * requisição de rede a cada letra enquanto o usuário ainda está digitando. */
 private const val SEARCH_REMOTE_DEBOUNCE_MS = 600L
 
-/** Buscas com menos letras que isso nunca vão pra rede -- "h" ou "a" sozinhos bateriam na API
- * sem necessidade e trariam resultado ambíguo demais pra valer a pena. */
 private const val MIN_REMOTE_SEARCH_QUERY_LENGTH = 2
 
 class CollectionActivity : MainNavActivity() {
@@ -60,21 +49,12 @@ class CollectionActivity : MainNavActivity() {
     }
 
     private var currentFilter = FilterType.ALL
-    private var currentSort = SortType.POWER_DESC
     private var searchQuery = ""
     private var allCharacters: List<Character> = emptyList()
 
-    // Rodada 15, parte 16 (30/09/2026): a ProgressBar de "carregar mais" só deve aparecer
-    // enquanto as DUAS coisas forem verdade ao mesmo tempo -- uma leva está de fato carregando E
-    // o usuário está perto do fim da lista. Sem isso, se o usuário rolar de volta pra cima
-    // enquanto uma leva anterior ainda está em andamento, a barra (fixada no rodapé do
-    // FrameLayout, não presa a uma posição da lista) continuava visível, flutuando por cima dos
-    // cards já vistos -- feio e sem sentido, apontado pelo usuário.
     private var loadMoreIsLoading = false
     private var isNearListEnd = false
 
-    /** Rodada 15, parte 40: job do debounce da busca ao vivo -- cancelado e reagendado a cada
-     * tecla digitada (ver scheduleRemoteSearchIfNeeded()). */
     private var searchDebounceJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,28 +82,9 @@ class CollectionActivity : MainNavActivity() {
         binding.recyclerCharacters.layoutManager = layoutManager
         binding.recyclerCharacters.adapter = adapter
 
-        // Rodada 15, parte 13 (30/09/2026): listagem "por partes" de novo -- desta vez o
-        // indicador de "carregando mais" é só uma ProgressBar comum no layout
-        // (progressLoadMore, em activity_collection.xml), nunca um item dentro do próprio
-        // RecyclerView. Isso evita de vez a causa raiz real já achada numa rodada anterior
-        // (IllegalStateException por inserir/remover item do adapter no meio de um callback de
-        // scroll) -- aqui o listener só chama viewModel.loadMore(), que só muda uma LiveData;
-        // quem decide o que desenhar na tela é sempre o observer normal, nunca o callback em si.
-        //
-        // Rodada 15, parte 15 (30/09/2026): usuário reportou que a ProgressBar de "carregar
-        // mais" não ficava firme durante o carregamento -- piscava/sumia sem motivo aparente.
-        // Causa: viewModelScope.launch usa Dispatchers.Main.immediate por padrão, e
-        // onScrolled() já roda na thread principal -- então a primeira linha de
-        // CollectionViewModel.loadMore() (_loadMoreState.value = Resource.Loading) executava de
-        // forma SÍNCRONA, ainda dentro do próprio callback de scroll, mudando a visibilidade da
-        // ProgressBar no meio de um passe de layout/scroll em andamento (mesma classe de bug já
-        // vista com o adapter na parte 8, agora afetando uma view comum em vez do adapter).
-        // Adiado com recyclerView.post{} -- viewModel.loadMore() (e a emissão da LiveData que
-        // ele dispara) só roda depois que o passe de scroll atual termina, nunca no meio dele.
         binding.recyclerCharacters.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                // Atualiza "perto do fim" em QUALQUER scroll (não só descendo) -- é o que
-                // permite esconder a barra de novo se o usuário rolar de volta pra cima.
+
                 val lastVisible = layoutManager.findLastVisibleItemPosition()
                 val nearEnd = lastVisible >= adapter.itemCount - LOAD_MORE_THRESHOLD
                 setNearListEnd(nearEnd)
@@ -147,14 +108,6 @@ class CollectionActivity : MainNavActivity() {
             override fun afterTextChanged(s: Editable?) = Unit
         })
 
-        // Rodada 15, parte 43 (04/10/2026): a tentativa da parte 42 de dar funcao propria pro
-        // icone de busca do teclado (disparar a busca na hora, sem esperar o debounce) foi
-        // removida por pedido explicito do usuario -- "tira essa parte de ter que clicar no
-        // icone de pesquisar... faz automatico quando percebe alteracao na barra de pesquisa".
-        // A busca remota continua 100% automatica: scheduleRemoteSearchIfNeeded() (debounce de
-        // 600ms, chamado a cada tecla pelo TextWatcher acima) ja dispara sozinha sem precisar
-        // de nenhum clique em nada.
-
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
             currentFilter = when (checkedIds.firstOrNull()) {
                 R.id.chipUnlocked -> FilterType.UNLOCKED
@@ -170,8 +123,6 @@ class CollectionActivity : MainNavActivity() {
             }
             applyFiltersAndRender()
         }
-
-        binding.buttonSort.setOnClickListener { showSortMenu() }
 
         viewModel.characters.observe(this) { list ->
             allCharacters = list
@@ -193,12 +144,6 @@ class CollectionActivity : MainNavActivity() {
             }
         }
 
-        // Rodada 15, parte 40 (04/10/2026): resultado da busca ao vivo (ver
-        // scheduleRemoteSearchIfNeeded()). Quando acha algo, a tela já atualiza sozinha --
-        // o novo personagem entra no Room e o Flow observado por viewModel.characters (acima)
-        // já refiltra com a mesma searchQuery automaticamente, sem precisar de nada aqui.
-        // Só avisamos o usuário nos 2 casos em que NADA aparece sozinho: erro de rede, ou busca
-        // que de fato não achou nenhum Marvel com esse nome no catálogo da Comic Vine.
         viewModel.remoteSearchState.observe(this) { state ->
             when {
                 state is Resource.Error ->
@@ -213,7 +158,7 @@ class CollectionActivity : MainNavActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Refaz o estado do jogador (ex: personagem desbloqueado num baú) sem gastar chamada à Comic Vine.
+
         app.userRepository.currentUid?.let { viewModel.refreshUserStatesOnly(it) }
         refreshProfileHeader(binding.topBar.textCoins, binding.topBar.textLevel)
     }
@@ -227,34 +172,6 @@ class CollectionActivity : MainNavActivity() {
         binding.progressLoadMore.visibleIf(loadMoreIsLoading && isNearListEnd)
     }
 
-    private fun showSortMenu() {
-        val popup = PopupMenu(this, binding.buttonSort)
-        popup.menu.add(0, 0, 0, R.string.sort_power_desc)
-        popup.menu.add(0, 1, 1, R.string.sort_power_asc)
-        popup.menu.add(0, 2, 2, R.string.sort_name)
-        popup.setOnMenuItemClickListener { item ->
-            currentSort = when (item.itemId) {
-                1 -> SortType.POWER_ASC
-                2 -> SortType.NAME
-                else -> SortType.POWER_DESC
-            }
-            applyFiltersAndRender()
-            true
-        }
-        popup.show()
-    }
-
-    /**
-     * Rodada 15, parte 40 (04/10/2026): se a busca local (sobre o que já está em cache) não
-     * achou NENHUM personagem com esse nome, espera um pouco (debounce) e então busca de
-     * verdade na Comic Vine por esse nome -- resolve o caso relatado de personagens que existem
-     * de verdade na Marvel (ex: Hulk, Viúva Negra) mas ainda não calharam de entrar na leva por
-     * popularidade que alimenta a lista (ver comentário em CharacterRepository.fetchBatch()).
-     *
-     * Checa de novo "existe localmente?" DEPOIS do delay (não só antes) -- o usuário pode ter
-     * digitado mais letras ou apagado tudo nesse meio tempo, e não queremos buscar uma query que
-     * já não é mais a atual.
-     */
     private fun scheduleRemoteSearchIfNeeded() {
         searchDebounceJob?.cancel()
         val query = searchQuery.trim()
@@ -262,13 +179,7 @@ class CollectionActivity : MainNavActivity() {
         searchDebounceJob = lifecycleScope.launch {
             delay(SEARCH_REMOTE_DEBOUNCE_MS)
             if (searchQuery.trim() != query) return@launch
-            // Rodada 15, parte 42 (04/10/2026): antes, bastava ALGUM personagem no cache ter o
-            // texto buscado como SUBSTRING do nome pra ja desistir de buscar na Comic Vine --
-            // bug real relatado pelo usuario: "She-Hulk" ja em cache contem "hulk", entao
-            // pesquisar "Hulk" nunca chegava a bater na API, mesmo o Hulk (personagem
-            // DIFERENTE) nao estando no cache. Agora so pula a busca remota se o nome ja em
-            // cache for EXATAMENTE igual ao texto buscado (ignorando caixa) -- ai sim ja temos
-            // esse personagem especifico, sem gastar uma chamada de rede a toa.
+
             val hasExactLocalMatch = allCharacters.any { it.name.equals(query, ignoreCase = true) }
             if (!hasExactLocalMatch) viewModel.searchRemote(query)
         }
@@ -277,15 +188,6 @@ class CollectionActivity : MainNavActivity() {
     private fun applyFiltersAndRender() {
         var list = allCharacters
 
-        // Rodada 15, parte 65 (07/10/2026): os 4 filtros de raridade abaixo só enxergam
-        // personagens JÁ carregados no cache local (allCharacters, que vem do Room via
-        // viewModel.characters) -- a listagem é alimentada aos poucos, por popularidade na
-        // Comic Vine (ver CharacterRepository.fetchBatch()), e popularidade não tem relação
-        // nenhuma com raridade. Então, por exemplo, "Lendário" aqui mostra só os Lendários que
-        // já calharam de entrar numa leva carregada até agora, não TODOS os Lendários que
-        // existem no catálogo -- o filtro ajuda a achar o que já está na tela, mas não resolve
-        // sozinho o catálogo inteiro aparecer de uma vez (isso exigiria mudar como/quando as
-        // levas são buscadas, não só como a lista já carregada é filtrada).
         list = when (currentFilter) {
             FilterType.ALL -> list
             FilterType.UNLOCKED -> list.filter { it.unlocked }
@@ -303,11 +205,7 @@ class CollectionActivity : MainNavActivity() {
             list = list.filter { it.name.contains(searchQuery, ignoreCase = true) }
         }
 
-        list = when (currentSort) {
-            SortType.POWER_DESC -> list.sortedByDescending { it.stats.overallPower }
-            SortType.POWER_ASC -> list.sortedBy { it.stats.overallPower }
-            SortType.NAME -> list.sortedBy { it.name }
-        }
+        list = list.sortedByDescending { it.stats.overallPower }
 
         adapter.submitList(list)
         binding.textEmpty.visibleIf(list.isEmpty())

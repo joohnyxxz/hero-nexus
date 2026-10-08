@@ -111,10 +111,6 @@
                 app:chipStrokeWidth="0dp"
                 android:textColor="@color/chip_text_selector" />
 
-            <!-- Rodada 15, parte 65 (07/10/2026): chips de raridade, separados dos de
-                 categoria/estado acima por um divisor fininho (view comum, sem texto) só pra
-                 deixar visualmente claro que são dois grupos de filtro diferentes dentro do
-                 mesmo ChipGroup de seleção única. -->
             <View
                 android:layout_width="1dp"
                 android:layout_height="24dp"
@@ -165,17 +161,6 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <ImageButton
-        android:id="@+id/buttonSort"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="@dimen/spacing_s"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/sort_power_desc"
-        android:src="@drawable/ic_sort"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scrollFilters" />
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
@@ -205,12 +190,6 @@
                 android:textAppearance="@style/TextAppearance.Heronexus.Body"
                 android:visibility="gone" />
 
-            <!-- Rodada 15, parte 13 (30/09/2026): indicador de "carregar mais", de propósito
-                 uma ProgressBar comum do layout, NUNCA um item dentro do RecyclerView (ver
-                 comentário em CollectionActivity.kt pro motivo: foi mexer no adapter durante um
-                 callback de scroll que causou a exceção real de uma rodada anterior). Fica sobre
-                 o canto inferior da grade só enquanto uma leva de "carregar mais" está em
-                 andamento (CollectionActivity observa loadMoreState e alterna a visibilidade). -->
             <ProgressBar
                 android:id="@+id/progressLoadMore"
                 android:layout_width="32dp"

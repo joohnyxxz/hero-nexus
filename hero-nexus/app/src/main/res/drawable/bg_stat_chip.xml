@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 12 (01/09): pequeno fundo pra faixa de poder embaixo do card, pra combinar com o
-     resto do app (chips com fundo solido em vez de texto solto direto no fundo do card). -->
+
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="@color/card_dark_light" />
     <corners android:radius="6dp" />

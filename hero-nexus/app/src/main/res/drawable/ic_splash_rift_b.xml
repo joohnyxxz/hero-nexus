@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada 15, parte 68 (07/10/2026): grupo B, rachaduras 2 e 4 mais os 2 arcos quebrados. Ver
-     comentário completo em ic_splash_rift.xml (grupo A). Gira em MainActivity.kt numa velocidade
-     e sentido diferentes do grupo A, de propósito, pra não ficarem sincronizados, o que voltaria
-     a parecer um disco rígido só, igual antes. -->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="480dp"
     android:height="480dp"
